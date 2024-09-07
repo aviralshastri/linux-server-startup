@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import time
 
 class SSH:
     def __init__(self):
@@ -38,6 +39,7 @@ class SSH:
                 text=True,
                 check=True
             )
+            time.sleep(1)
             self.ssh_status = self.check_ssh_status()
             return "Failed" if self.ssh_status else "Success"
         except subprocess.CalledProcessError:
@@ -62,7 +64,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python script.py <start|stop|check-status|restart>")
         sys.exit(1)
-
     command = sys.argv[1]
     ssh = SSH()
     
