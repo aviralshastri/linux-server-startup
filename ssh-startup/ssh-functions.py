@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 class SSH:
     def __init__(self):
@@ -18,13 +19,25 @@ class SSH:
     
     def start_ssh(self):
         try:
-            result = subprocess.run(
+            subprocess.run(
                 ['systemctl', 'start', 'ssh'], 
                 capture_output=True,
                 text=True,
                 check=True
             )
-            return "success" if self.check_ssh_status else "failed"
+            return "Success" if self.check_ssh_status else "Failed"
+        except subprocess.CalledProcessError:
+            ("Failed to start SSH service.")
+    
+    def stop_ssh(self):
+        try:
+            subprocess.run(
+                ['systemctl', 'stop', 'ssh'], 
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return "Failed" if self.check_ssh_status else "Success"
         except subprocess.CalledProcessError:
             ("Failed to start SSH service.")
     
@@ -33,12 +46,24 @@ class SSH:
             try:
                 subprocess.run(['sudo', 'systemctl', 'restart', 'ssh'], check=True)
                 self.ssh_status = self.check_ssh_status()
-                print("SSH service restarted successfully.")
+                return "Success" if self.check_ssh_status() else "Failed"
             except subprocess.CalledProcessError:
                 print("Failed to restart SSH service.")
+                return "Failed"
         else:
             print("SSH is not active; cannot restart.")
+            return "Failed"
 
 if __name__ == "__main__":
+    args=sys.argv
     ssh = SSH()
-    print("ssh status:",ssh.start_ssh())
+    if args[1]=="start":
+        print("Starting SSH: ",ssh.start_ssh())
+    elif args[1]=="stop":
+        print("Shutting down SSH: ",ssh.stop_ssh())
+    elif args[1]=="check-status":
+        print("Current SSH status: ","Running" if ssh.check_ssh_status() else "Not Running")
+    elif args[1]=="restart":
+        print("Restarting SSH: ",ssh.restart_ssh())
+    else:
+        print("Invalid system arguments!")
