@@ -25,7 +25,6 @@ class SSH:
                 text=True,
                 check=True
             )
-            # Recheck status after starting
             self.ssh_status = self.check_ssh_status()
             return "Success" if self.ssh_status else "Failed"
         except subprocess.CalledProcessError:
@@ -39,7 +38,6 @@ class SSH:
                 text=True,
                 check=True
             )
-            # Recheck status after stopping
             self.ssh_status = self.check_ssh_status()
             return "Failed" if self.ssh_status else "Success"
         except subprocess.CalledProcessError:
@@ -54,7 +52,11 @@ class SSH:
             except subprocess.CalledProcessError:
                 return "Failed to restart SSH service."
         else:
-            return "SSH is not active; cannot restart."
+            start_result = self.start_ssh()
+            if start_result == "Success":
+                return "SSH was not active. Started SSH service successfully."
+            else:
+                return "Failed to start SSH service when attempting to restart."
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -68,6 +70,7 @@ if __name__ == "__main__":
         print("Starting SSH:", ssh.start_ssh())
     elif command == "stop":
         print("Stopping SSH:", ssh.stop_ssh())
+        print("SSH Status after stop:", "Running" if ssh.check_ssh_status() else "Not Running")
     elif command == "check-status":
         print("Current SSH status:", "Running" if ssh.check_ssh_status() else "Not Running")
     elif command == "restart":
