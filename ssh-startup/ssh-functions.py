@@ -1,6 +1,6 @@
 import subprocess
 
-class SSH
+class SSH:
     def check_ssh_status():
         try:
             result = subprocess.run(
