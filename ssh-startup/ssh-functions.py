@@ -16,6 +16,18 @@ class SSH:
         except subprocess.CalledProcessError:
             return False
     
+    def start_ssh(self):
+        try:
+            result = subprocess.run(
+                ['systemctl', 'start', 'ssh'], 
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return "success" if self.check_ssh_status else "failed"
+        except subprocess.CalledProcessError:
+            ("Failed to start SSH service.")
+    
     def restart_ssh(self):
         if self.ssh_status:
             try:
@@ -29,4 +41,4 @@ class SSH:
 
 if __name__ == "__main__":
     ssh = SSH()
-    print("ssh status:",ssh.check_ssh_status())
+    print("ssh status:",ssh.start_ssh())
