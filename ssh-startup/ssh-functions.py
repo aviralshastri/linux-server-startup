@@ -25,9 +25,11 @@ class SSH:
                 text=True,
                 check=True
             )
-            return "Success" if self.check_ssh_status else "Failed"
+            # Recheck status after starting
+            self.ssh_status = self.check_ssh_status()
+            return "Success" if self.ssh_status else "Failed"
         except subprocess.CalledProcessError:
-            ("Failed to start SSH service.")
+            return "Failed to start SSH service."
     
     def stop_ssh(self):
         try:
@@ -37,33 +39,38 @@ class SSH:
                 text=True,
                 check=True
             )
-            return "Failed" if self.check_ssh_status else "Success"
+            # Recheck status after stopping
+            self.ssh_status = self.check_ssh_status()
+            return "Failed" if self.ssh_status else "Success"
         except subprocess.CalledProcessError:
-            ("Failed to start SSH service.")
+            return "Failed to stop SSH service."
     
     def restart_ssh(self):
         if self.ssh_status:
             try:
                 subprocess.run(['sudo', 'systemctl', 'restart', 'ssh'], check=True)
                 self.ssh_status = self.check_ssh_status()
-                return "Success" if self.check_ssh_status() else "Failed"
+                return "Success" if self.ssh_status else "Failed"
             except subprocess.CalledProcessError:
-                print("Failed to restart SSH service.")
-                return "Failed"
+                return "Failed to restart SSH service."
         else:
-            print("SSH is not active; cannot restart.")
-            return "Failed"
+            return "SSH is not active; cannot restart."
 
 if __name__ == "__main__":
-    args=sys.argv
+    if len(sys.argv) < 2:
+        print("Usage: python script.py <start|stop|check-status|restart>")
+        sys.exit(1)
+
+    command = sys.argv[1]
     ssh = SSH()
-    if args[1]=="start":
-        print("Starting SSH: ",ssh.start_ssh())
-    elif args[1]=="stop":
-        print("Shutting down SSH: ",ssh.stop_ssh())
-    elif args[1]=="check-status":
-        print("Current SSH status: ","Running" if ssh.check_ssh_status() else "Not Running")
-    elif args[1]=="restart":
-        print("Restarting SSH: ",ssh.restart_ssh())
+    
+    if command == "start":
+        print("Starting SSH:", ssh.start_ssh())
+    elif command == "stop":
+        print("Stopping SSH:", ssh.stop_ssh())
+    elif command == "check-status":
+        print("Current SSH status:", "Running" if ssh.check_ssh_status() else "Not Running")
+    elif command == "restart":
+        print("Restarting SSH:", ssh.restart_ssh())
     else:
-        print("Invalid system arguments!")
+        print("Invalid command. Usage: python script.py <start|stop|check-status|restart>")
