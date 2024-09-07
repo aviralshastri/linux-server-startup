@@ -26,13 +26,7 @@ class SSH:
                 print("Failed to restart SSH service.")
         else:
             print("SSH is not active; cannot restart.")
-    
-    def status_summary(self):
-        status = "active" if self.ssh_status else "inactive"
-        print(f"SSH Service is currently {status}.")
 
 if __name__ == "__main__":
     ssh = SSH()
-    ssh.status_summary()
-    ssh.restart_ssh() 
-    ssh.status_summary()
+    print("ssh status:",ssh.check_ssh_status())
