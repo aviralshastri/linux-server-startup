@@ -1,21 +1,24 @@
 import subprocess
 
 class SSH:
+    @staticmethod
     def check_ssh_status():
         try:
             result = subprocess.run(
-                ['systemctl', 'status', 'ssh'],
+                ['systemctl', 'is-active', 'ssh'], 
                 capture_output=True,
                 text=True,
                 check=True
             )
-            print("SSH Status:")
-            print(result.stdout)
-        except subprocess.CalledProcessError as e:
-            print("Error checking SSH status:")
-            print(e.stderr)
+            if result.stdout.strip() == "active":
+                return True
+            else:
+                return False
+        except subprocess.CalledProcessError:
+            return False
 
 
-if __name__=="__main__":
-    ssh= SSH
-    ssh.check_ssh_status()
+if __name__ == "__main__":
+    ssh = SSH()
+    status = ssh.check_ssh_status()
+    print("SSH is active:", status)
