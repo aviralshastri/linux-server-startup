@@ -34,48 +34,48 @@ class GeneralFunctions:
         if percore:
             return {f"Core {i}": usage for i, usage in enumerate(psutil.cpu_percent(interval=0.5, percpu=True))}
         return {"cpu_percent": psutil.cpu_percent(interval=0.5)}
-
+    
     def get_cpu_temperature(self):
+        
+        temperatures = {}
         try:
             temps = psutil.sensors_temperatures()
-            cpu_temps = {}
-            
+
             if 'coretemp' in temps:
-                cpu_temps['coretemp'] = [temp.current for temp in temps['coretemp']]
+                temperatures['coretemp'] = [temp.current for temp in temps['coretemp']]
             if 'k10temp' in temps:
-                cpu_temps['k10temp'] = [temp.current for temp in temps['k10temp']]
+                temperatures['k10temp'] = [temp.current for temp in temps['k10temp']]
             if 'amdgpu' in temps:
-                cpu_temps['amdgpu'] = [temp.current for temp in temps['amdgpu']]
+                temperatures['amdgpu'] = [temp.current for temp in temps['amdgpu']]
             if 'nct6795' in temps:
-                cpu_temps['nct6795'] = [temp.current for temp in temps['nct6795']]
-            
-            if cpu_temps:
-                return {"cpu_temp": cpu_temps}
-
+                temperatures['nct6795'] = [temp.current for temp in temps['nct6795']]
+        
         except Exception as e:
-            try:
-                result = subprocess.run(['sensors'], capture_output=True, text=True, check=True)
-                output = result.stdout
+            temperatures['psutil_error'] = str(e)
+        
+        try:
+            result = subprocess.run(['sensors'], capture_output=True, text=True, check=True)
+            output = result.stdout
 
-                temperatures = {}
-                for line in output.splitlines():
-                    if '°C' in line:
-                        if 'Tctl' in line:
-                            temp_label = 'Tctl'
-                            temp_value = line.split(':')[1].strip().split()[0]
-                            temperatures[temp_label] = temp_value
-                        elif 'CPUTIN' in line:
-                            temp_label = 'CPUTIN'
-                            temp_value = line.split(':')[1].strip().split()[0]
-                            temperatures[temp_label] = temp_value
-                if temperatures:
-                    return {"cpu_temp": temperatures}
+            for line in output.splitlines():
+                if '°C' in line:
+                    if 'Tctl' in line:
+                        temp_label = 'Tctl'
+                        temp_value = line.split(':')[1].strip().split()[0]
+                        temperatures[temp_label] = temp_value
+                    elif 'CPUTIN' in line:
+                        temp_label = 'CPUTIN'
+                        temp_value = line.split(':')[1].strip().split()[0]
+                        temperatures[temp_label] = temp_value
 
-            except subprocess.CalledProcessError:
-                return {"cpu_temp": "Failed to retrieve temperature data from both sensors and psutil"}
+        except subprocess.CalledProcessError as e:
+            temperatures['sensors_error'] = str(e)
 
-        return {"cpu_temp": "Temperature data not available"}
+        if not temperatures:
+            temperatures['status'] = 'Temperature data not available'
 
+        return {"cpu_temp": temperatures}
+    
 def main():
     parser = argparse.ArgumentParser(description="System Resource Monitor - Disk, RAM, CPU usage and temperature stats.")
     
