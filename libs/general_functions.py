@@ -39,10 +39,12 @@ class GeneralFunctions:
         try:
             result = subprocess.run(['sensors'], capture_output=True, text=True, check=True)
             output = result.stdout
+            temperatures = []
             for line in output.splitlines():
-                if 'Core' in line and '°C' in line:
-                    return line.strip()
-            return "CPU temperature not found in sensors output."
+                if '°C' in line and ('Core' in line or 'Tctl' in line or 'CPUTIN' in line):
+                    temperatures.append(line.strip())
+
+            return temperatures if temperatures else "CPU temperature not found in sensors output."
         except subprocess.CalledProcessError as e:
             return f"Failed to retrieve temperature: {e}"
 
