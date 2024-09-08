@@ -71,7 +71,7 @@ class SSH:
     def kill_connection(self, pid):
         try:
             subprocess.run(
-                ["kill", pid],
+                ["sudo","kill", pid],
                 capture_output=True,
                 text=True,
                 check=True
@@ -83,7 +83,7 @@ class SSH:
     def force_kill_connection(self, pid):
         try:
             subprocess.run(
-                ["kill", "-9", pid],
+                ["sudo","kill", "-9", pid],
                 capture_output=True,
                 text=True,
                 check=True
