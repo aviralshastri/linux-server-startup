@@ -33,6 +33,11 @@ class SSH:
     
     def stop_ssh(self):
         try:
+            current_sessions = self.list_connections()
+            for session in current_sessions:
+                if "tty" not in session['connection_type']:
+                    self.force_kill_connection(session["pid"])
+            
             subprocess.run(
                 ['systemctl', 'stop', 'ssh'], 
                 capture_output=True,
@@ -48,7 +53,7 @@ class SSH:
     def restart_ssh(self):
         if self.ssh_status:
             try:
-                subprocess.run(['sudo', 'systemctl', 'restart', 'ssh'], check=True)
+                subprocess.run(['systemctl', 'restart', 'ssh'], check=True)
                 self.ssh_status = self.check_ssh_status()
                 return "Success" if self.ssh_status else "Failed"
             except subprocess.CalledProcessError:
@@ -60,17 +65,53 @@ class SSH:
             else:
                 return "Failed to start SSH service when attempting to restart."
     
+    def kill_connection(self, pid):
+        try:
+            subprocess.run(
+                ["kill", pid],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return "Connection closed successfully."
+        except subprocess.CalledProcessError:
+            return "Failed to close connection"
+    
+    def force_kill_connection(self, pid):
+        try:
+            subprocess.run(
+                ["kill", "-9", pid],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return "Connection force closed successfully."
+        except subprocess.CalledProcessError:
+            return "Failed to force close connection"
+    
     def list_connections(self):
-        result = subprocess.run(['who'], stdout=subprocess.PIPE)
+        result = subprocess.run(['who', '-u'], stdout=subprocess.PIPE)
         devices = result.stdout.decode('utf-8').strip().split('\n')
         connected_devices = []
 
         for device in devices:
             parts = device.split()
-            if len(parts) > 4:
-                user = parts[0]
-                ip = parts[-1].strip('()')
-                connected_devices.append({'user': user, 'ip': ip})
+            if len(parts) >= 8:
+                user = parts[0]                  
+                connection_type = parts[1]       
+                login_time = f"{parts[2]} {parts[3]}" 
+                idle_time = parts[4]            
+                pid = parts[5]                  
+                ip = parts[6].strip('()') if '(' in parts[6] else 'Local'  
+                connected_devices.append({
+                    'user': user,
+                    'connection_type': connection_type,
+                    'login_time': login_time,
+                    'idle_time': idle_time,
+                    'pid': pid,
+                    'ip': ip
+                })
+
         return connected_devices
     
     def boot_enable_ssh(self):
@@ -105,11 +146,11 @@ if __name__ == "__main__":
         print("Current SSH status:", "Running" if ssh.check_ssh_status() else "Not Running")
     elif command == "restart":
         print("Restarting SSH:", ssh.restart_ssh())
-    elif command=="list-connections":
-        print("List of SSH connections:\n",ssh.list_connections())
-    elif command=="boot-enable":
+    elif command == "list-connections":
+        print("List of SSH connections:\n", ssh.list_connections())
+    elif command == "boot-enable":
         print(ssh.boot_enable_ssh())
-    elif command=="boot-disable":
+    elif command == "boot-disable":
         print(ssh.boot_disable_ssh())
     else:
-        print("Invalid command. Usage: python script.py <start|stop|check-status|restart>")
+        print("Invalid command. Usage: python script.py <start|stop|status|restart|list-connections|boot-enable|boot-disable>")
