@@ -74,7 +74,7 @@ class GeneralFunctions:
         if not temperatures:
             temperatures['status'] = 'Temperature data not available'
 
-        return {"cpu_temp": temperatures}
+        return temperatures
     
 def main():
     parser = argparse.ArgumentParser(description="System Resource Monitor - Disk, RAM, CPU usage and temperature stats.")
