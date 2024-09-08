@@ -39,14 +39,21 @@ class GeneralFunctions:
         try:
             result = subprocess.run(['sensors'], capture_output=True, text=True, check=True)
             output = result.stdout
-            temperatures = []
+
+            temperatures = {}
             for line in output.splitlines():
                 if '°C' in line and ('Core' in line or 'Tctl' in line or 'CPUTIN' in line):
-                    temperatures.append(line.strip())
+                    parts = line.split(':')
+                    if len(parts) > 1:
+                        temp_label = parts[0].strip()
+                        temp_value = parts[1].strip().split()[0]
+                        temperatures[temp_label] = temp_value
 
-            return temperatures if temperatures else "CPU temperature not found in sensors output."
+            if not temperatures:
+                return {"cpu_temp": "Temperature not found"}
+            return {"cpu_temp": temperatures}
         except subprocess.CalledProcessError as e:
-            return f"Failed to retrieve temperature: {e}"
+            return {"cpu_temp": f"Failed to retrieve temperature: {e}"}
 
 def main():
     parser = argparse.ArgumentParser(description="System Resource Monitor - Disk, RAM, CPU usage and temperature stats.")
