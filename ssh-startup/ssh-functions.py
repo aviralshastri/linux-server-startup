@@ -32,35 +32,26 @@ class SSH:
             return "Failed to start SSH service."
     
     def stop_ssh(self):
-            try:
-                current_sessions = self.list_connections()
-                for session in current_sessions:
-                    if "pts" in session['connection_type']:
-                        print(f"Terminating connection for PID {session['pid']} (Type: {session['connection_type']})")
-                        self.force_kill_connection(session["pid"])
-                
-                time.sleep(2)
-                
-                subprocess.run(
-                    ['sudo', 'systemctl', 'stop', 'ssh'], 
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-                
-                time.sleep(2)
-                
-                self.ssh_status = self.check_ssh_status()
-                lingering_sessions = self.list_connections()
-                lingering_pts = [session for session in lingering_sessions if "pts" in session['connection_type']]
-                if lingering_pts:
-                    print("Warning: Some pts connections are still active. Forcing termination...")
-                    for session in lingering_pts:
-                        self.force_kill_connection(session["pid"])
-                
-                return "Failed" if self.ssh_status else "Success"
-            except subprocess.CalledProcessError as e:
-                return f"Failed to stop SSH service. Error: {str(e)}"
+        try:
+            subprocess.run(
+                ['pkill', '-f', 'ssh'], 
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            subprocess.run(
+                ['systemctl', 'stop', 'ssh'], 
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            time.sleep(1)
+            self.ssh_status = self.check_ssh_status()
+            return "Failed" if self.ssh_status else "Success"
+        except subprocess.CalledProcessError as e:
+            return f"Failed to stop SSH service. Error: {str(e)}"
     
     def restart_ssh(self):
         if self.ssh_status:
@@ -88,18 +79,6 @@ class SSH:
             return "Connection closed successfully."
         except subprocess.CalledProcessError:
             return "Failed to close connection"
-    
-    def force_kill_connection(self, pid):
-        try:
-            subprocess.run(
-                ["sudo", "kill", "-9", pid],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            return "Connection force closed successfully."
-        except subprocess.CalledProcessError as e:
-            return f"Failed to force close connection. Error: {str(e)}"
     
     def list_connections(self):
         result = subprocess.run(['who', '-u'], stdout=subprocess.PIPE)
