@@ -60,20 +60,38 @@ class SSH:
             else:
                 return "Failed to start SSH service when attempting to restart."
     
-    def list_active_connections(self):
+    def list_connections(self):
+        result = subprocess.run(['who'], stdout=subprocess.PIPE)
+        devices = result.stdout.decode('utf-8').strip().split('\n')
+        connected_devices = []
+
+        for device in devices:
+            parts = device.split()
+            if len(parts) > 4:
+                user = parts[0]
+                ip = parts[-1].strip('()')
+                connected_devices.append({'user': user, 'ip': ip})
+        return connected_devices
+    
+    def boot_enable_ssh(self):
         try:
-            result = subprocess.run(['who'], capture_output=True, text=True)
-            if result.stdout.strip():
-                return result.stdout.strip()
-            else:
-                return "No active SSH connections."
+            subprocess.run(['systemctl', 'enable', 'ssh'], capture_output=True, text=True, check=True)
+            return "SSH enabled on boot."
         except subprocess.CalledProcessError:
-            return "Failed to list active connections."
+            return "Failed to enable SSH on boot."
+
+    def boot_disable_ssh(self):
+        try:
+            subprocess.run(['systemctl', 'disable', 'ssh'], capture_output=True, text=True, check=True)
+            return "SSH disabled on boot."
+        except subprocess.CalledProcessError:
+            return "Failed to disable SSH on boot."
 
 
 if __name__ == "__main__":
+    
     if len(sys.argv) < 2:
-        print("Usage: python script.py <start|stop|check-status|restart>")
+        print("Usage: python script.py <start|stop|status|restart|list-connections|boot-enable|boot-disable>")
         sys.exit(1)
     command = sys.argv[1]
     ssh = SSH()
@@ -88,6 +106,10 @@ if __name__ == "__main__":
     elif command == "restart":
         print("Restarting SSH:", ssh.restart_ssh())
     elif command=="list-connections":
-        print("List of SSH connections:\n",ssh.list_active_connections())
+        print("List of SSH connections:\n",ssh.list_connections())
+    elif command=="boot-enable":
+        print(ssh.boot_enable_ssh())
+    elif command=="boot-disable":
+        print(ssh.boot_disable_ssh())
     else:
         print("Invalid command. Usage: python script.py <start|stop|check-status|restart>")
