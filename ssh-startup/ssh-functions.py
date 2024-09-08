@@ -71,7 +71,7 @@ class SSH:
     def kill_connection(self, pid):
         try:
             subprocess.run(
-                ["sudo", "kill", pid],
+                ["sudo", "kill","-15", pid],
                 capture_output=True,
                 text=True,
                 check=True
@@ -123,9 +123,10 @@ class SSH:
 if __name__ == "__main__":
     
     if len(sys.argv) < 2:
-        print("Usage: python script.py <start|stop|status|restart|list-connections|boot-enable|boot-disable>")
+        print("Usage: python script.py <start|stop|status|restart|list-connections|kill-connection|boot-enable|boot-disable>")
         sys.exit(1)
     command = sys.argv[1]
+    other_args=sys.argv[2:]
     ssh = SSH()
     
     if command == "start":
@@ -143,6 +144,8 @@ if __name__ == "__main__":
                 print(f"User: {conn['user']}, Type: {conn['connection_type']}, PID: {conn['pid']}, IP: {conn['ip']}")
         else:
             print("No active connections found.")
+    elif command=="kill-connection":
+        print(ssh.kill_connection(pid=other_args[2]))
     elif command == "boot-enable":
         print(ssh.boot_enable_ssh())
     elif command == "boot-disable":
