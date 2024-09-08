@@ -99,7 +99,7 @@ class SSH:
 
         for device in devices:
             parts = device.split()
-            if len(parts) >= 8:
+            if len(parts) >= 7:
                 user = parts[0]
                 connection_type = parts[1]
                 login_time = f"{parts[2]} {parts[3]}"
