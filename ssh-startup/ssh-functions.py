@@ -95,6 +95,7 @@ class SSH:
         result = subprocess.run(['who', '-u'], stdout=subprocess.PIPE)
         devices = result.stdout.decode('utf-8').strip().split('\n')
         connected_devices = []
+        print(result)
 
         for device in devices:
             parts = device.split()
