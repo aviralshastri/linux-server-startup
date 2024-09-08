@@ -123,7 +123,7 @@ class SSH:
 if __name__ == "__main__":
     
     if len(sys.argv) < 2:
-        print("Usage: python script.py <start|stop|status|restart|list-connections|kill-connection|boot-enable|boot-disable>")
+        print("Usage: python ssh-function.py <start|stop|status|restart|list-connections|kill-connection::::<PID>|boot-enable|boot-disable>")
         sys.exit(1)
     command = sys.argv[1]
     other_args=sys.argv[2:]
@@ -152,4 +152,5 @@ if __name__ == "__main__":
     elif command == "boot-disable":
         print(ssh.boot_disable_ssh())
     else:
-        print("Invalid command. Usage: python script.py <start|stop|status|restart|list-connections|boot-enable|boot-disable>")
+        print("Invalid command!")
+        print("Usage: python ssh-function.py <start|stop|status|restart|list-connections|kill-connection::::<PID>|boot-enable|boot-disable>")
