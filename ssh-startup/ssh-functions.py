@@ -34,9 +34,12 @@ class SSH:
     def stop_ssh(self):
         try:
             current_sessions = self.list_connections()
+            print(current_sessions)
             for session in current_sessions:
                 if "tty" not in session['connection_type']:
                     self.force_kill_connection(session["pid"])
+                    print(session["pid"])
+            print(self.list_connections())
             
             subprocess.run(
                 ['systemctl', 'stop', 'ssh'], 
@@ -141,7 +144,6 @@ if __name__ == "__main__":
         print("Starting SSH:", ssh.start_ssh())
     elif command == "stop":
         print("Stopping SSH:", ssh.stop_ssh())
-        print("SSH Status after stop:", "Running" if ssh.check_ssh_status() else "Not Running")
     elif command == "status":
         print("Current SSH status:", "Running" if ssh.check_ssh_status() else "Not Running")
     elif command == "restart":
