@@ -1,5 +1,7 @@
 import psutil
 import argparse
+import subprocess
+    
 
 class GeneralFunctions:
     @staticmethod
@@ -34,19 +36,15 @@ class GeneralFunctions:
         return {"cpu_percent": psutil.cpu_percent(interval=0.5)}
 
     def get_cpu_temperature(self):
-        """Return the CPU temperature if available, otherwise provide a fallback message."""
         try:
-            temps = psutil.sensors_temperatures()
-            if not temps:
-                return "Temperature sensors not found."
-            
-            cpu_temp = temps.get('coretemp')
-            if cpu_temp:
-                return {f"Sensor {i}": f"{entry.current}°C" for i, entry in enumerate(cpu_temp)}
-            else:
-                return "CPU temperature sensor not detected."
-        except (AttributeError, KeyError, Exception) as e:
-            return f"Error retrieving temperature: {str(e)}"
+            result = subprocess.run(['sensors'], capture_output=True, text=True, check=True)
+            output = result.stdout
+            for line in output.splitlines():
+                if 'Core' in line and '°C' in line:
+                    return line.strip()
+            return "CPU temperature not found in sensors output."
+        except subprocess.CalledProcessError as e:
+            return f"Failed to retrieve temperature: {e}"
 
 def main():
     parser = argparse.ArgumentParser(description="System Resource Monitor - Disk, RAM, CPU usage and temperature stats.")
