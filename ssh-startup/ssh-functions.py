@@ -34,12 +34,10 @@ class SSH:
     def stop_ssh(self):
         try:
             current_sessions = self.list_connections()
-            print(current_sessions)
             for session in current_sessions:
-                if "tty" not in session['connection_type']:
+                if "pts" in session['connection_type']:
+                    print(f"Terminating connection for PID {session['pid']}")
                     self.force_kill_connection(session["pid"])
-                    print(session["pid"])
-            print(self.list_connections())
             
             subprocess.run(
                 ['systemctl', 'stop', 'ssh'], 
@@ -52,6 +50,7 @@ class SSH:
             return "Failed" if self.ssh_status else "Success"
         except subprocess.CalledProcessError:
             return "Failed to stop SSH service."
+
     
     def restart_ssh(self):
         if self.ssh_status:
@@ -71,7 +70,7 @@ class SSH:
     def kill_connection(self, pid):
         try:
             subprocess.run(
-                ["sudo","kill", pid],
+                ["sudo", "kill", pid],
                 capture_output=True,
                 text=True,
                 check=True
@@ -83,7 +82,7 @@ class SSH:
     def force_kill_connection(self, pid):
         try:
             subprocess.run(
-                ["sudo","kill", "-9", pid],
+                ["sudo", "kill", "-9", pid],
                 capture_output=True,
                 text=True,
                 check=True
@@ -100,12 +99,12 @@ class SSH:
         for device in devices:
             parts = device.split()
             if len(parts) >= 8:
-                user = parts[0]                  
-                connection_type = parts[1]       
-                login_time = f"{parts[2]} {parts[3]}" 
-                idle_time = parts[4]            
-                pid = parts[5]                  
-                ip = parts[6].strip('()') if '(' in parts[6] else 'Local'  
+                user = parts[0]
+                connection_type = parts[1]
+                login_time = f"{parts[2]} {parts[3]}"
+                idle_time = parts[4]
+                pid = parts[5]
+                ip = parts[6].strip('()') if '(' in parts[6] else 'Local'
                 connected_devices.append({
                     'user': user,
                     'connection_type': connection_type,
@@ -149,7 +148,12 @@ if __name__ == "__main__":
     elif command == "restart":
         print("Restarting SSH:", ssh.restart_ssh())
     elif command == "list-connections":
-        print("List of SSH connections:\n", ssh.list_connections())
+        connections = ssh.list_connections()
+        if connections:
+            for conn in connections:
+                print(f"User: {conn['user']}, Type: {conn['connection_type']}, PID: {conn['pid']}, IP: {conn['ip']}")
+        else:
+            print("No active connections found.")
     elif command == "boot-enable":
         print(ssh.boot_enable_ssh())
     elif command == "boot-disable":
