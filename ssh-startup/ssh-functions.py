@@ -144,8 +144,9 @@ if __name__ == "__main__":
                 print(f"User: {conn['user']}, Type: {conn['connection_type']}, PID: {conn['pid']}, IP: {conn['ip']}")
         else:
             print("No active connections found.")
-    elif command=="kill-connection":
-        print(ssh.kill_connection(pid=other_args[2]))
+    elif "kill-connection" in command:
+        pid=command.split("::::")
+        print(ssh.kill_connection(pid=pid[1]))
     elif command == "boot-enable":
         print(ssh.boot_enable_ssh())
     elif command == "boot-disable":
