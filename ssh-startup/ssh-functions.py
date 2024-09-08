@@ -59,6 +59,17 @@ class SSH:
                 return "SSH was not active. Started SSH service successfully."
             else:
                 return "Failed to start SSH service when attempting to restart."
+    
+    def list_active_connections(self):
+        try:
+            result = subprocess.run(['who'], capture_output=True, text=True)
+            if result.stdout.strip():
+                return result.stdout.strip()
+            else:
+                return "No active SSH connections."
+        except subprocess.CalledProcessError:
+            return "Failed to list active connections."
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -72,9 +83,11 @@ if __name__ == "__main__":
     elif command == "stop":
         print("Stopping SSH:", ssh.stop_ssh())
         print("SSH Status after stop:", "Running" if ssh.check_ssh_status() else "Not Running")
-    elif command == "check-status":
+    elif command == "status":
         print("Current SSH status:", "Running" if ssh.check_ssh_status() else "Not Running")
     elif command == "restart":
         print("Restarting SSH:", ssh.restart_ssh())
+    elif command=="list-connections":
+        print("List of SSH connections:\n",ssh.list_active_connections())
     else:
         print("Invalid command. Usage: python script.py <start|stop|check-status|restart>")
