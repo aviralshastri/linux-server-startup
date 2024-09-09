@@ -36,7 +36,7 @@ def main():
     net = Network()
 
     if args.command == "check-network":
-        print("Device is online" if net.check_connection(percore=False) else "Device is offline")
+        print("Device is online" if net.check_connection() else "Device is offline")
 
 if __name__ == "__main__":
     main()
