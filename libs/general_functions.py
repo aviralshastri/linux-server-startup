@@ -25,37 +25,28 @@ class General:
             print("Error while rebooting the server.")
         except Exception as e:
             print(f"Unexpected error occurred: {e}")
+            
     def get_active_services(self):
         """Lists active services in a clean format."""
         try:
-            # Run the systemctl command and capture the output
             result = subprocess.run(
                 ['systemctl', 'list-units', '--type=service', '--state=active'],
                 capture_output=True, text=True, check=True
             )
             output = result.stdout
-            
             services = []
-            in_services_section = False  # Track when the actual services section starts
+            in_services_section = False
             
             for line in output.splitlines():
                 line = line.strip()
-                
-                # Skip empty lines or non-service lines
                 if not line or line.startswith(" "):
                     continue
-
-                # Find the header (UNIT LOAD ACTIVE SUB DESCRIPTION)
                 if line.startswith("UNIT"):
-                    in_services_section = True  # Start processing after we find the header
+                    in_services_section = True
                     continue
-                
                 if in_services_section:
-                    # Skip any footer/legend lines or separator lines
                     if line.startswith("--") or "LOAD" in line or "ACTIVE" in line:
                         continue
-
-                    # Split the line by spaces, limit to 4 splits (to preserve description)
                     parts = line.split(None, 4)
                     if len(parts) == 5:
                         unit, load, active, sub, description = parts
@@ -66,12 +57,52 @@ class General:
                             "SUB": sub,
                             "DESCRIPTION": description
                         })
-
-            return services  # Return the list of services
+            return services
         except subprocess.CalledProcessError as e:
             print(f"Error while listing active services: {e}")
         except Exception as e:
             print(f"Unexpected error occurred: {e}")
+        
+        
+    def get_inactive_services(self):
+        """Lists inactive services in a clean format."""
+        try:
+            result = subprocess.run(
+                ['systemctl', 'list-units', '--type=service', '--state=inactive'],
+                capture_output=True, text=True, check=True
+            )
+            output = result.stdout
+            
+            services = []
+            in_services_section = False
+            
+            for line in output.splitlines():
+                line = line.strip()
+                if not line or line.startswith(" "):
+                    continue
+                if line.startswith("UNIT"):
+                    in_services_section = True
+                    continue
+                if in_services_section:
+                    if line.startswith("--") or "LOAD" in line or "ACTIVE" in line:
+                        continue
+
+                    parts = line.split(None, 4)
+                    if len(parts) == 5:
+                        unit, load, active, sub, description = parts
+                        services.append({
+                            "UNIT": unit,
+                            "LOAD": load,
+                            "ACTIVE": active,
+                            "SUB": sub,
+                            "DESCRIPTION": description
+                        })
+            return services
+        except subprocess.CalledProcessError as e:
+            print(f"Error while listing inactive services: {e}")
+        except Exception as e:
+            print(f"Unexpected error occurred: {e}")
+
 
     def get_cpu_temperature(self):
         """Gets CPU temperature from various sensors."""
@@ -109,11 +140,11 @@ class General:
         return None, None
 
 def main():
-    parser = argparse.ArgumentParser(description="General monitoring and operations- temperature stats, reboot, shutdown, active services.")
+    parser = argparse.ArgumentParser(description="General monitoring and operations- temperature stats, reboot, shutdown, active/inactive services.")
     
     parser.add_argument(
         "command", 
-        choices=["cpu-temp","reboot","shutdown",'active-services'], 
+        choices=["cpu-temp", "reboot", "shutdown", "active-services", "inactive-services"], 
         help="Command to get system resource usage: 'cpu-temp'"
     )
     
@@ -123,12 +154,14 @@ def main():
 
     if args.command == "cpu-temp":
         print(gen.get_cpu_temperature())
-    elif args.command=="reboot":
+    elif args.command == "reboot":
         print(gen.reboot())
-    elif args.command=="shutdown":
+    elif args.command == "shutdown":
         print(gen.shutdown())
-    elif args.command=="active-services":
+    elif args.command == "active-services":
         print(gen.get_active_services())
+    elif args.command == "inactive-services":
+        print(gen.get_inactive_services())
 
 if __name__ == "__main__":
     main()
