@@ -25,8 +25,20 @@ class General:
             print("Error while rebooting the server.")
         except Exception as e:
             print(f"Unexpected error occurred: {e}")
+    
+    def get_active_services(self):
+        """Lists active services."""
+        try:
+            result = subprocess.run(['systemctl', 'list-units', '--type=service', '--state=active'], 
+                                   capture_output=True, text=True, check=True)
+            return result.stdout
+        except subprocess.CalledProcessError:
+            print("Error while listing active services.")
+        except Exception as e:
+            print(f"Unexpected error occurred: {e}")
             
     def get_cpu_temperature(self):
+        """Gets CPU temperature from various sensors."""
         temperatures = {}
         try:
             temps = psutil.sensors_temperatures()
@@ -53,9 +65,7 @@ class General:
         return temperatures
 
     def _parse_sensor_line(self, line):
-        """
-        Parse a line from the 'sensors' command output to extract temperature labels and values.
-        """
+        """Parse a line from the 'sensors' command output to extract temperature labels and values."""
         if 'Tctl' in line:
             return 'Tctl', line.split(':')[1].strip().split()[0]
         elif 'CPUTIN' in line:
@@ -63,11 +73,11 @@ class General:
         return None, None
 
 def main():
-    parser = argparse.ArgumentParser(description="General monitoring and operations- temperature stats, reboot, shutdown.")
+    parser = argparse.ArgumentParser(description="General monitoring and operations- temperature stats, reboot, shutdown, active services.")
     
     parser.add_argument(
         "command", 
-        choices=["cpu-temp","reboot","shutdown"], 
+        choices=["cpu-temp","reboot","shutdown",'active-services'], 
         help="Command to get system resource usage: 'cpu-temp'"
     )
     
@@ -81,6 +91,8 @@ def main():
         print(gen.reboot())
     elif args.command=="shutdown":
         print(gen.shutdown())
+    elif args.command=="active-services":
+        print(gen.get_active_services())
 
 if __name__ == "__main__":
     main()
