@@ -184,7 +184,7 @@ def main():
     
     parser.add_argument(
         "command", 
-        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom', 'get-ip', 'restart network'], 
+        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom', 'get-ip', 'restart-network'], 
         help="Command to check network connection, restart network, get ping latency, or get internet speed"
     )
     
@@ -237,7 +237,7 @@ def main():
         else:
             print("Failed to determine internet speed (Custom Test).")
     
-    elif args.command == "restart network":
+    elif args.command == "restart-network":
         net.restart_network()
 
 if __name__ == "__main__":
