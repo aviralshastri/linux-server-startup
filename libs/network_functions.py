@@ -6,6 +6,7 @@ import subprocess
 import os
 import json
 import time
+import psutil
 
 SETTINGS_FILE = 'settings.json'
 
@@ -25,6 +26,20 @@ class Network:
             return True
         except socket.error:
             return False
+    
+    def get_ip(self):
+        """
+        Get the ip of all interfaces.
+        """
+        addresses = psutil.net_if_addrs()
+        ip_list = {}
+        
+        for interface_name, interface_addresses in addresses.items():
+            for address in interface_addresses:
+                if address.family == socket.AF_INET:
+                    ip_list[interface_name] = address.address
+        
+        return ip_list
     
     def get_ping(self, host='8.8.8.8'):
         """
@@ -105,12 +120,13 @@ class Network:
             print("Custom server not set in settings.")
         return None, None, None
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Network Monitoring - internet connection, ping, and speed test.")
+    parser = argparse.ArgumentParser(description="Network Monitoring - IP address, internet connection, ping, and speed test.")
     
     parser.add_argument(
         "command", 
-        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom'], 
+        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom','get-ip'], 
         help="Command to check network connection, get ping latency, or get internet speed"
     )
     
@@ -121,6 +137,13 @@ def main():
     if args.command == "check-network":
         status = "online" if net.check_connection() else "offline"
         print(f"Device is {status}")
+    
+    elif args.command == "get-ip":
+        ip = net.get_ip()
+        if ip is not None:
+            print(ip)
+        else:
+            print("Failed to determine ip address of interfaces.")
     
     elif args.command == "get-ping":
         ping = net.get_ping()
