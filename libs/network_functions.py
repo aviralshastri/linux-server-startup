@@ -3,16 +3,16 @@ import argparse
 import speedtest
 import re
 import subprocess
-import logging
 import os
+import json
+import time
 
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+SETTINGS_FILE = 'settings.json'
 
 class Network:
     
     def __init__(self):
-        pass
+        self.settings = self.load_settings()
     
     def check_connection(self, host='8.8.8.8', port=53, timeout=5):
         """
@@ -39,29 +39,78 @@ class Network:
             if match:
                 return round(float(match.group(1)), 2)
         except subprocess.CalledProcessError:
-            logging.error("Ping command failed.")
+            print("Ping command failed.")
         return None
-    
-    def get_internet_speed(self):
+
+    def load_settings(self):
         """
-        Test download and upload speeds in Mbps.
+        Load the settings from the JSON file.
+        """
+        if os.path.exists(SETTINGS_FILE):
+            try:
+                with open(SETTINGS_FILE, 'r') as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, ValueError):
+                print(f"Error reading {SETTINGS_FILE}. Reinitializing with default settings.")
+        return {"best_server": None, "custom_speed_server": None}
+
+    def save_settings(self):
+        """
+        Save the settings to the JSON file.
+        """
+        with open(SETTINGS_FILE, 'w') as f:
+            json.dump(self.settings, f, indent=4)
+
+    def get_internet_speed(self, server=None):
+        """
+        Test download and upload speeds in Mbps using a specific server.
         """
         try:
+            start_time = time.time()
             st = speedtest.Speedtest()
+            if server:
+                st.get_servers([server])
             st.get_best_server()
-            download_speed = st.download() / 1_000_000
+            download_speed = st.download() / 1_000_000 
             upload_speed = st.upload() / 1_000_000 
-            return round(download_speed, 2), round(upload_speed, 2)
+            end_time = time.time()
+            elapsed_time = round(end_time - start_time, 2)
+            return round(download_speed, 2), round(upload_speed, 2), elapsed_time
         except Exception as e:
-            logging.error(f"Error getting internet speed: {e}")
-        return None, None
+            print(f"Error getting internet speed: {e}")
+        return None, None, None
+
+    def get_internet_speed_quick(self):
+        """
+        Test download and upload speeds using the saved best server or find one and save it.
+        """
+        if self.settings.get('best_server'):
+            server = self.settings['best_server']
+        else:
+            server = None
+            download_speed, upload_speed, elapsed_time = self.get_internet_speed()
+            if download_speed is not None and upload_speed is not None:
+                self.settings['best_server'] = server
+                self.save_settings()
+        return self.get_internet_speed(server)
+
+    def get_internet_speed_custom(self):
+        """
+        Test download and upload speeds using a custom server from the settings.
+        """
+        server = self.settings.get('custom_speed_server')
+        if server:
+            return self.get_internet_speed(server)
+        else:
+            print("Custom server not set in settings.")
+        return None, None, None
 
 def main():
     parser = argparse.ArgumentParser(description="Network Monitoring - internet connection, ping, and speed test.")
     
     parser.add_argument(
         "command", 
-        choices=['check-network', 'get-ping', 'get-speed'], 
+        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom'], 
         help="Command to check network connection, get ping latency, or get internet speed"
     )
     
@@ -71,22 +120,41 @@ def main():
 
     if args.command == "check-network":
         status = "online" if net.check_connection() else "offline"
-        logging.info(f"Device is {status}")
+        print(f"Device is {status}")
     
     elif args.command == "get-ping":
         ping = net.get_ping()
         if ping is not None:
-            logging.info(f"Ping latency: {ping} ms")
+            print(f"Ping latency: {ping} ms")
         else:
-            logging.info("Failed to determine ping latency.")
+            print("Failed to determine ping latency.")
     
     elif args.command == "get-speed":
-        download_speed, upload_speed = net.get_internet_speed()
+        download_speed, upload_speed, elapsed_time = net.get_internet_speed()
         if download_speed is not None and upload_speed is not None:
-            logging.info(f"Download Speed: {download_speed} Mbps")
-            logging.info(f"Upload Speed: {upload_speed} Mbps")
+            print(f"Download Speed: {download_speed} Mbps")
+            print(f"Upload Speed: {upload_speed} Mbps")
+            print(f"Time elapsed: {elapsed_time} seconds")
         else:
-            logging.info("Failed to determine internet speed.")
+            print("Failed to determine internet speed.")
+    
+    elif args.command == "get-speed:quick":
+        download_speed, upload_speed, elapsed_time = net.get_internet_speed_quick()
+        if download_speed is not None and upload_speed is not None:
+            print(f"Download Speed: {download_speed} Mbps (Quick Test)")
+            print(f"Upload Speed: {upload_speed} Mbps (Quick Test)")
+            print(f"Time elapsed: {elapsed_time} seconds")
+        else:
+            print("Failed to determine internet speed (Quick Test).")
+    
+    elif args.command == "get-speed:custom":
+        download_speed, upload_speed, elapsed_time = net.get_internet_speed_custom()
+        if download_speed is not None and upload_speed is not None:
+            print(f"Download Speed: {download_speed} Mbps (Custom Test)")
+            print(f"Upload Speed: {upload_speed} Mbps (Custom Test)")
+            print(f"Time elapsed: {elapsed_time} seconds")
+        else:
+            print("Failed to determine internet speed (Custom Test).")
 
 if __name__ == "__main__":
     main()

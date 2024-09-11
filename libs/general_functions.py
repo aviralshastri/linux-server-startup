@@ -7,38 +7,23 @@ class General:
         pass
     
     def get_cpu_temperature(self):
-        
         temperatures = {}
         try:
             temps = psutil.sensors_temperatures()
-
-            if 'coretemp' in temps:
-                temperatures['coretemp'] = [temp.current for temp in temps['coretemp']]
-            if 'k10temp' in temps:
-                temperatures['k10temp'] = [temp.current for temp in temps['k10temp']]
-            if 'amdgpu' in temps:
-                temperatures['amdgpu'] = [temp.current for temp in temps['amdgpu']]
-            if 'nct6795' in temps:
-                temperatures['nct6795'] = [temp.current for temp in temps['nct6795']]
-        
+            for sensor in ['coretemp', 'k10temp', 'amdgpu', 'nct6795']:
+                if sensor in temps:
+                    temperatures[sensor] = [temp.current for temp in temps[sensor]]
         except Exception as e:
             temperatures['psutil_error'] = str(e)
-        
+
         try:
             result = subprocess.run(['sensors'], capture_output=True, text=True, check=True)
             output = result.stdout
-
             for line in output.splitlines():
                 if '°C' in line:
-                    if 'Tctl' in line:
-                        temp_label = 'Tctl'
-                        temp_value = line.split(':')[1].strip().split()[0]
-                        temperatures[temp_label] = temp_value
-                    elif 'CPUTIN' in line:
-                        temp_label = 'CPUTIN'
-                        temp_value = line.split(':')[1].strip().split()[0]
-                        temperatures[temp_label] = temp_value
-
+                    label, value = self._parse_sensor_line(line)
+                    if label:
+                        temperatures[label] = value
         except subprocess.CalledProcessError as e:
             temperatures['sensors_error'] = str(e)
 
@@ -46,6 +31,16 @@ class General:
             temperatures['status'] = 'Temperature data not available'
 
         return temperatures
+
+    def _parse_sensor_line(self, line):
+        """
+        Parse a line from the 'sensors' command output to extract temperature labels and values.
+        """
+        if 'Tctl' in line:
+            return 'Tctl', line.split(':')[1].strip().split()[0]
+        elif 'CPUTIN' in line:
+            return 'CPUTIN', line.split(':')[1].strip().split()[0]
+        return None, None
 
 def main():
     parser = argparse.ArgumentParser(description="General stats monitoring - temperature stats.")
