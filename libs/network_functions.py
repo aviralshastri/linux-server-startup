@@ -29,7 +29,7 @@ class Network:
     
     def get_ip(self):
         """
-        Get the ip of all interfaces.
+        Get the IP of all interfaces.
         """
         addresses = psutil.net_if_addrs()
         ip_list = {}
@@ -120,14 +120,72 @@ class Network:
             print("Custom server not set in settings.")
         return None, None, None
 
+    def restart_network(self):
+        """
+        Stops, checks, restarts network services, and validates network connectivity.
+        """
+        def run_command(command, check=True):
+            """Executes a system command and optionally checks for errors."""
+            try:
+                result = subprocess.run(command, capture_output=True, text=True, check=check)
+                return result
+            except subprocess.CalledProcessError as e:
+                print(f"Command failed: {e}")
+                return None
+
+        def is_service_active(service_name):
+            """Checks if a systemd service is active."""
+            result = run_command(['systemctl', 'is-active', service_name], check=False)
+            return result and result.stdout.strip() == 'active'
+
+        def ping_host(host):
+            """Pings a host and returns True if it is reachable, False otherwise."""
+            result = run_command(['ping', '-c', '1', host], check=False)
+            return result and result.returncode == 0
+
+        print("Stopping network services...")
+        run_command(['systemctl', 'stop', 'systemd-networkd.socket'])
+        run_command(['systemctl', 'stop', 'systemd-networkd'])
+        
+        time.sleep(2)
+
+        while is_service_active('systemd-networkd') or is_service_active('systemd-networkd.socket'):
+            print("Services still active. Stopping again...")
+            run_command(['systemctl', 'stop', 'systemd-networkd.socket'])
+            run_command(['systemctl', 'stop', 'systemd-networkd'])
+            time.sleep(2)
+
+        while ping_host('8.8.8.8'):
+            print("Network still active. Stopping services again...")
+            run_command(['systemctl', 'stop', 'systemd-networkd.socket'])
+            run_command(['systemctl', 'stop', 'systemd-networkd'])
+            time.sleep(2)
+
+        print("Starting network services...")
+        run_command(['systemctl', 'start', 'systemd-networkd.socket'])
+        run_command(['systemctl', 'start', 'systemd-networkd'])
+
+        while not is_service_active('systemd-networkd') or not is_service_active('systemd-networkd.socket'):
+            print("Services not active. Restarting...")
+            run_command(['systemctl', 'start', 'systemd-networkd.socket'])
+            run_command(['systemctl', 'start', 'systemd-networkd'])
+            time.sleep(2)
+
+        while not ping_host('8.8.8.8'):
+            print("Network not live. Restarting services...")
+            run_command(['systemctl', 'start', 'systemd-networkd.socket'])
+            run_command(['systemctl', 'start', 'systemd-networkd'])
+            time.sleep(2)
+
+        print("Network is live and services are active.")
 
 def main():
     parser = argparse.ArgumentParser(description="Network Monitoring - IP address, internet connection, ping, and speed test.")
     
     parser.add_argument(
         "command", 
-        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom','get-ip'], 
-        help="Command to check network connection, get ping latency, or get internet speed"
+        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom', 'get-ip', 'restart network'], 
+        help="Command to check network connection, restart network, get ping latency, or get internet speed"
     )
     
     args = parser.parse_args()
@@ -140,10 +198,10 @@ def main():
     
     elif args.command == "get-ip":
         ip = net.get_ip()
-        if ip is not None:
+        if ip:
             print(ip)
         else:
-            print("Failed to determine ip address of interfaces.")
+            print("Failed to determine IP address of interfaces.")
     
     elif args.command == "get-ping":
         ping = net.get_ping()
@@ -178,6 +236,9 @@ def main():
             print(f"Time elapsed: {elapsed_time} seconds")
         else:
             print("Failed to determine internet speed (Custom Test).")
+    
+    elif args.command == "restart network":
+        net.restart_network()
 
 if __name__ == "__main__":
     main()
