@@ -32,7 +32,7 @@ class SSHManager:
         """Stop the SSH service."""
         self.run_command(['pkill', '-f', 'ssh'], check=False)
         self.run_command(['systemctl', 'stop', 'ssh'], check=False)
-        time.sleep(1)  # Allow time for the service to stop
+        time.sleep(1)
         self.ssh_status = self.check_ssh_status()
         return "Success" if not self.ssh_status else "Failed"
 
