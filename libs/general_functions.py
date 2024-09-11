@@ -27,13 +27,40 @@ class General:
             print(f"Unexpected error occurred: {e}")
     
     def get_active_services(self):
-        """Lists active services."""
+        """Lists active services in a clean format."""
         try:
             result = subprocess.run(['systemctl', 'list-units', '--type=service', '--state=active'], 
-                                   capture_output=True, text=True, check=True)
-            return result.stdout
-        except subprocess.CalledProcessError:
-            print("Error while listing active services.")
+                                    capture_output=True, text=True, check=True)
+            output = result.stdout
+            
+            services = []
+            in_services_section = False
+            
+            for line in output.splitlines():
+                if not in_services_section:
+                    if line.startswith("UNIT"):
+                        in_services_section = True 
+                    continue
+                
+                if line.startswith(" "):
+                    continue
+                
+                if line.startswith("----"):
+                    continue
+
+                parts = line.split(None, 4)
+                if len(parts) == 5:
+                    unit, load, active, sub, description = parts
+                    services.append({
+                        "UNIT": unit,
+                        "LOAD": load,
+                        "ACTIVE": active,
+                        "SUB": sub,
+                        "DESCRIPTION": description
+                    })
+            return services 
+        except subprocess.CalledProcessError as e:
+            print(f"Error while listing active services: {e}")
         except Exception as e:
             print(f"Unexpected error occurred: {e}")
             
