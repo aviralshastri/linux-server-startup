@@ -107,12 +107,9 @@ class Network:
                 st = speedtest.Speedtest()
                 st.get_servers([server_id])
                 st.get_best_server()
-                
-                # Use a callback that accepts any arguments
                 def dummy_callback(*args, **kwargs):
                     pass
 
-                # Reduce the amount of data downloaded/uploaded for the test
                 download_speed = st.download(threads=1, callback=dummy_callback) / 1_000_000
                 upload_speed = st.upload(threads=1, callback=dummy_callback) / 1_000_000
                 
@@ -153,11 +150,25 @@ class Network:
         Test download and upload speeds using a custom server from the settings.
         """
         server = self.settings.get('custom_speed_server')
-        if server:
-            return self.get_internet_speed(server)
-        else:
-            print("Custom server not set in settings.")
+        
+        if not server:
+            print("No custom server saved in settings.")
+            return None, None, None
+        
+        try:
+            print(f"Using custom server: {server}")
+            download_speed, upload_speed, elapsed_time = self.get_internet_speed(server)
+            
+            if download_speed is None or upload_speed is None:
+                print(f"Error using custom server {server}. Unable to get speed test results.")
+            else:
+                return download_speed, upload_speed, elapsed_time
+        
+        except Exception as e:
+            print(f"Error using custom server {server}: {str(e)}")
+        
         return None, None, None
+    
 
     def restart_network(self):
         """
