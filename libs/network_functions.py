@@ -97,29 +97,45 @@ class Network:
 
     def get_internet_speed_quick(self):
         """
-        Test download and upload speeds using the saved best server or find one and save it.
+        Perform a quicker speed test using a saved server and reduced sample count.
         """
         server = self.settings.get('best_server')
         
-        def test_speed(server_id):
+        def quick_test(server_id):
             try:
-                return self.get_internet_speed(server_id)
+                start_time = time.time()
+                st = speedtest.Speedtest()
+                st.get_servers([server_id])
+                st.get_best_server()
+                
+                # Use a callback that accepts any arguments
+                def dummy_callback(*args, **kwargs):
+                    pass
+
+                # Reduce the amount of data downloaded/uploaded for the test
+                download_speed = st.download(threads=1, callback=dummy_callback) / 1_000_000
+                upload_speed = st.upload(threads=1, callback=dummy_callback) / 1_000_000
+                
+                end_time = time.time()
+                elapsed_time = round(end_time - start_time, 2)
+                
+                return round(download_speed, 2), round(upload_speed, 2), elapsed_time
             except Exception as e:
-                print(f"Error testing speed with server {server_id}: {e}")
+                print(f"Error in quick speed test with server {server_id}: {e}")
                 return None, None, None
 
         if server:
             print(f"Using saved server: {server}")
-            download_speed, upload_speed, elapsed_time = test_speed(server)
+            download_speed, upload_speed, elapsed_time = quick_test(server)
 
         if download_speed is None or upload_speed is None:
-            print("Finding best server...")
+            print("Saved server failed or not found. Finding best server...")
             try:
                 st = speedtest.Speedtest()
                 st.get_best_server()
                 server = st.best['id']
                 print(f"Found best server: {server}")
-                download_speed, upload_speed, elapsed_time = test_speed(server)
+                download_speed, upload_speed, elapsed_time = quick_test(server)
                 
                 if download_speed is not None and upload_speed is not None:
                     self.settings['best_server'] = server
@@ -131,7 +147,7 @@ class Network:
                 print(f"Error finding best server: {e}")
 
         return download_speed, upload_speed, elapsed_time
-
+    
     def get_internet_speed_custom(self):
         """
         Test download and upload speeds using a custom server from the settings.
