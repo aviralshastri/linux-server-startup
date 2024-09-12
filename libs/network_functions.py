@@ -79,17 +79,27 @@ class Network:
     def get_internet_speed(self, server=None):
         """
         Test download and upload speeds in Mbps using a specific server.
+        Updates the best server in settings if a new one is found.
         """
         try:
             start_time = time.time()
             st = speedtest.Speedtest()
             if server:
                 st.get_servers([server])
-            st.get_best_server()
+                selected_server = st.get_best_server()
+            else:
+                selected_server = st.get_best_server()
+            
+            if selected_server['id'] != self.settings.get('best_server'):
+                self.settings['best_server'] = selected_server['id']
+                self.save_settings()
+                print(f"Updated best server in settings to: {selected_server['id']}")
+            
             download_speed = st.download() / 1_000_000 
             upload_speed = st.upload() / 1_000_000 
             end_time = time.time()
             elapsed_time = round(end_time - start_time, 2)
+            
             return round(download_speed, 2), round(upload_speed, 2), elapsed_time
         except Exception as e:
             print(f"Error getting internet speed: {e}")
