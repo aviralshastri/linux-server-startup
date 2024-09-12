@@ -239,36 +239,63 @@ class Network:
 
         print("Network is live and services are active.")
     
-    def get_best_speed_servers(self):
+    def get_all_servers(self):
         """
         Fetch and display the details of the best speedtest servers.
         """
         try:
             st = speedtest.Speedtest()
             servers = st.get_servers()
-            best_servers = st.get_best_server()
-
-            print("Best Speedtest Server Details:")
-            print(f"ID: {best_servers['id']}")
-            print(f"Host: {best_servers['host']}")
-            print(f"Location: {best_servers['name']}, {best_servers['country']}")
-            print(f"Latency: {best_servers['latency']} ms")
-            print(f"ISP: {best_servers['sponsor']}")
-            print(f"URL: {best_servers['url']}")
-
-            return best_servers
+            return servers
 
         except Exception as e:
             print(f"Error fetching best speedtest servers: {e}")
             return None
+    
+    def get_all_servers(self):
+        """
+        Fetch and display the details of the best speedtest servers.
+        """
+        try:
+            st = speedtest.Speedtest()
+            servers = st.get_servers()
+            return servers
+
+        except Exception as e:
+            print(f"Error fetching best speedtest servers: {e}")
+            return None
+    
+    def get_best_ping_server(self):
+        """
+        Fetch and return details of the single best speedtest server.
+        """
+        try:
+            st = speedtest.Speedtest()
+            best_server = st.get_best_server()
+            
+            server_info = {
+                'id': best_server['id'],
+                'name': best_server['name'],
+                'sponsor': best_server['sponsor'],
+                'country': best_server['country'],
+                'distance': round(best_server['d'], 2),
+                'latency': round(best_server['latency'], 2)
+            }
+            
+            return server_info
+
+        except Exception as e:
+            print(f"Error fetching best speedtest server: {e}")
+            return None
+        
 
 def main():
-    parser = argparse.ArgumentParser(description="Network Monitoring - IP address, internet connection, ping, and speed test.")
+    parser = argparse.ArgumentParser(description="Network Monitoring - IP address, internet connection, ping, fetching available servers and best servers and speed test.")
     
     parser.add_argument(
         "command", 
-        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom', 'get-ip', 'restart-network', 'get-best-speed-servers'], 
-        help="Command to check network connection, restart network, get ping latency, get internet speed, or retrieve best speed servers"
+        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom', 'get-ip', 'restart-network', 'get-all-servers','get-best-server'], 
+        help="Command to check network connection, restart network, get ping latency, get internet speed, or retrieve available servers"
     )
     
     args = parser.parse_args()
@@ -301,6 +328,7 @@ def main():
             print(f"Time elapsed: {elapsed_time} seconds")
         else:
             print("Failed to determine internet speed.")
+        
     
     elif args.command == "get-speed:quick":
         download_speed, upload_speed, elapsed_time = net.get_internet_speed_quick()
@@ -323,10 +351,17 @@ def main():
     elif args.command == "restart-network":
         net.restart_network()
     
-    elif args.command == "get-best-speed-servers":
-        best_servers = net.get_best_speed_servers()
+    elif args.command == "get-all-servers":
+        all_servers = net.get_all_servers()
+        if all_servers:
+            print(all_servers)
+        else:
+            print("Failed to retrieve all servers.")
+    
+    elif args.command == "get-best-server":
+        best_servers = net.get_best_ping_server()
         if best_servers:
-            print("Best servers retrieved successfully.")
+            print(best_servers)
         else:
             print("Failed to retrieve best servers.")
 
