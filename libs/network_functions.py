@@ -99,15 +99,38 @@ class Network:
         """
         Test download and upload speeds using the saved best server or find one and save it.
         """
-        if self.settings.get('best_server'):
-            server = self.settings['best_server']
-        else:
-            server = None
-            download_speed, upload_speed, elapsed_time = self.get_internet_speed()
-            if download_speed is not None and upload_speed is not None:
-                self.settings['best_server'] = server
-                self.save_settings()
-        return self.get_internet_speed(server)
+        server = self.settings.get('best_server')
+        
+        def test_speed(server_id):
+            try:
+                return self.get_internet_speed(server_id)
+            except Exception as e:
+                print(f"Error testing speed with server {server_id}: {e}")
+                return None, None, None
+
+        if server:
+            print(f"Using saved server: {server}")
+            download_speed, upload_speed, elapsed_time = test_speed(server)
+
+        if download_speed is None or upload_speed is None:
+            print("Finding best server...")
+            try:
+                st = speedtest.Speedtest()
+                st.get_best_server()
+                server = st.best['id']
+                print(f"Found best server: {server}")
+                download_speed, upload_speed, elapsed_time = test_speed(server)
+                
+                if download_speed is not None and upload_speed is not None:
+                    self.settings['best_server'] = server
+                    self.save_settings()
+                    print(f"New best server saved in settings: {server}")
+                else:
+                    print("Failed to get speed with new server.")
+            except Exception as e:
+                print(f"Error finding best server: {e}")
+
+        return download_speed, upload_speed, elapsed_time
 
     def get_internet_speed_custom(self):
         """
