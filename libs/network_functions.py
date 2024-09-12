@@ -238,14 +238,37 @@ class Network:
             time.sleep(2)
 
         print("Network is live and services are active.")
+    
+    def get_best_speed_servers(self):
+        """
+        Fetch and display the details of the best speedtest servers.
+        """
+        try:
+            st = speedtest.Speedtest()
+            servers = st.get_servers()
+            best_servers = st.get_best_server()
+
+            print("Best Speedtest Server Details:")
+            print(f"ID: {best_servers['id']}")
+            print(f"Host: {best_servers['host']}")
+            print(f"Location: {best_servers['name']}, {best_servers['country']}")
+            print(f"Latency: {best_servers['latency']} ms")
+            print(f"ISP: {best_servers['sponsor']}")
+            print(f"URL: {best_servers['url']}")
+
+            return best_servers
+
+        except Exception as e:
+            print(f"Error fetching best speedtest servers: {e}")
+            return None
 
 def main():
     parser = argparse.ArgumentParser(description="Network Monitoring - IP address, internet connection, ping, and speed test.")
     
     parser.add_argument(
         "command", 
-        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom', 'get-ip', 'restart-network'], 
-        help="Command to check network connection, restart network, get ping latency, or get internet speed"
+        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom', 'get-ip', 'restart-network', 'get-best-speed-servers'], 
+        help="Command to check network connection, restart network, get ping latency, get internet speed, or retrieve best speed servers"
     )
     
     args = parser.parse_args()
@@ -299,6 +322,13 @@ def main():
     
     elif args.command == "restart-network":
         net.restart_network()
+    
+    elif args.command == "get-best-speed-servers":
+        best_servers = net.get_best_speed_servers()
+        if best_servers:
+            print("Best servers retrieved successfully.")
+        else:
+            print("Failed to retrieve best servers.")
 
 if __name__ == "__main__":
     main()
