@@ -86,7 +86,11 @@ class Network:
             st = speedtest.Speedtest()
             if server:
                 st.get_servers([server])
-                selected_server = st.get_best_server()
+                servers = st.get_servers([server])
+                if servers:
+                    selected_server = servers[0]
+                else:
+                    selected_server = st.get_best_server()
             else:
                 selected_server = st.get_best_server()
             
@@ -104,6 +108,7 @@ class Network:
         except Exception as e:
             print(f"Error getting internet speed: {e}")
         return None, None, None
+
 
     def get_internet_speed_quick(self):
         """
@@ -267,7 +272,7 @@ class Network:
     
     def get_best_ping_server(self):
         """
-        Fetch and return details of the single best speedtest server.
+        Fetch and return details of the best speedtest server.
         """
         try:
             st = speedtest.Speedtest()
