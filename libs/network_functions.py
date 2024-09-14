@@ -288,13 +288,13 @@ class Network:
             print(f"Error fetching best speedtest server: {e}")
             return None
         
-
+        
 def main():
-    parser = argparse.ArgumentParser(description="Network Monitoring - IP address, internet connection, ping, fetching available servers and best servers and speed test.")
+    parser = argparse.ArgumentParser(description="Network Monitoring - IP address, internet connection, ping, fetching available servers and best servers, and speed test.")
     
     parser.add_argument(
         "command", 
-        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom', 'get-ip', 'restart-network', 'get-all-servers','get-best-server'], 
+        choices=['check-network', 'get-ping', 'get-speed', 'get-speed:quick', 'get-speed:custom', 'get-ip', 'restart-network', 'get-all-servers', 'get-best-server'], 
         help="Command to check network connection, restart network, get ping latency, get internet speed, or retrieve available servers"
     )
     
@@ -302,68 +302,68 @@ def main():
     
     net = Network()
 
-    if args.command == "check-network":
-        status = "online" if net.check_connection() else "offline"
-        print(f"Device is {status}")
-    
-    elif args.command == "get-ip":
-        ip = net.get_ip()
-        if ip:
-            print(ip)
-        else:
-            print("Failed to determine IP address of interfaces.")
-    
-    elif args.command == "get-ping":
-        ping = net.get_ping()
-        if ping is not None:
-            print(f"Ping latency: {ping} ms")
-        else:
-            print("Failed to determine ping latency.")
-    
-    elif args.command == "get-speed":
-        download_speed, upload_speed, elapsed_time = net.get_internet_speed()
-        if download_speed is not None and upload_speed is not None:
-            print(f"Download Speed: {download_speed} Mbps")
-            print(f"Upload Speed: {upload_speed} Mbps")
-            print(f"Time elapsed: {elapsed_time} seconds")
-        else:
-            print("Failed to determine internet speed.")
-        
-    
-    elif args.command == "get-speed:quick":
-        download_speed, upload_speed, elapsed_time = net.get_internet_speed_quick()
-        if download_speed is not None and upload_speed is not None:
-            print(f"Download Speed: {download_speed} Mbps (Quick Test)")
-            print(f"Upload Speed: {upload_speed} Mbps (Quick Test)")
-            print(f"Time elapsed: {elapsed_time} seconds")
-        else:
-            print("Failed to determine internet speed (Quick Test).")
-    
-    elif args.command == "get-speed:custom":
-        download_speed, upload_speed, elapsed_time = net.get_internet_speed_custom()
-        if download_speed is not None and upload_speed is not None:
-            print(f"Download Speed: {download_speed} Mbps (Custom Test)")
-            print(f"Upload Speed: {upload_speed} Mbps (Custom Test)")
-            print(f"Time elapsed: {elapsed_time} seconds")
-        else:
-            print("Failed to determine internet speed (Custom Test).")
-    
-    elif args.command == "restart-network":
-        net.restart_network()
-    
-    elif args.command == "get-all-servers":
-        all_servers = net.get_all_servers()
-        if all_servers:
-            print(all_servers)
-        else:
-            print("Failed to retrieve all servers.")
-    
-    elif args.command == "get-best-server":
-        best_servers = net.get_best_ping_server()
-        if best_servers:
-            print(best_servers)
-        else:
-            print("Failed to retrieve best servers.")
+    match args.command:
+        case "check-network":
+            status = "online" if net.check_connection() else "offline"
+            print(f"Device is {status}")
+
+        case "get-ip":
+            ip = net.get_ip()
+            if ip:
+                print(ip)
+            else:
+                print("Failed to determine IP address of interfaces.")
+
+        case "get-ping":
+            ping = net.get_ping()
+            if ping is not None:
+                print(f"Ping latency: {ping} ms")
+            else:
+                print("Failed to determine ping latency.")
+
+        case "get-speed":
+            download_speed, upload_speed, elapsed_time = net.get_internet_speed()
+            if download_speed is not None and upload_speed is not None:
+                print(f"Download Speed: {download_speed} Mbps")
+                print(f"Upload Speed: {upload_speed} Mbps")
+                print(f"Time elapsed: {elapsed_time} seconds")
+            else:
+                print("Failed to determine internet speed.")
+
+        case "get-speed:quick":
+            download_speed, upload_speed, elapsed_time = net.get_internet_speed_quick()
+            if download_speed is not None and upload_speed is not None:
+                print(f"Download Speed: {download_speed} Mbps (Quick Test)")
+                print(f"Upload Speed: {upload_speed} Mbps (Quick Test)")
+                print(f"Time elapsed: {elapsed_time} seconds")
+            else:
+                print("Failed to determine internet speed (Quick Test).")
+
+        case "get-speed:custom":
+            download_speed, upload_speed, elapsed_time = net.get_internet_speed_custom()
+            if download_speed is not None and upload_speed is not None:
+                print(f"Download Speed: {download_speed} Mbps (Custom Test)")
+                print(f"Upload Speed: {upload_speed} Mbps (Custom Test)")
+                print(f"Time elapsed: {elapsed_time} seconds")
+            else:
+                print("Failed to determine internet speed (Custom Test).")
+
+        case "restart-network":
+            net.restart_network()
+
+        case "get-all-servers":
+            all_servers = net.get_all_servers()
+            if all_servers:
+                print(all_servers)
+            else:
+                print("Failed to retrieve all servers.")
+
+        case "get-best-server":
+            best_servers = net.get_best_ping_server()
+            if best_servers:
+                print(best_servers)
+            else:
+                print("Failed to retrieve best servers.")
 
 if __name__ == "__main__":
     main()

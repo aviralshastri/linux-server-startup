@@ -48,18 +48,18 @@ def main():
     args = parser.parse_args()
     
     resource_usage = ResourceUsage()
-
-
-    command_map = {
-        "cpu-usage": lambda: resource_usage.get_cpu_usage(percore=False),
-        "cpu-usage:percore": lambda: resource_usage.get_cpu_usage(percore=True),
-        "ram-usage": resource_usage.get_ram_usage,
-        "disk-usage": resource_usage.get_disk_usage
-    }
-
-    result = command_map[args.command]()
+    
+    match args.command:
+        case "cpu-usage":
+            result = resource_usage.get_cpu_usage(percore=False)
+        case "cpu-usage:percore":
+            result = resource_usage.get_cpu_usage(percore=True)
+        case "ram-usage":
+            result = resource_usage.get_ram_usage()
+        case "disk-usage":
+            result = resource_usage.get_disk_usage()
+    
     print(result)
-
 
 if __name__ == "__main__":
     main()

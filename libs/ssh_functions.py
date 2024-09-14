@@ -79,39 +79,52 @@ class SSHManager:
         return "SSH disabled on boot." if not error else f"Failed to disable SSH on boot: {error}"
 
 
+
 def main():
     parser = argparse.ArgumentParser(description="Manage SSH service and connections.")
-    parser.add_argument("command", choices=[
-        "start", "stop", "status", "restart", "list-connections", "kill-connection", "boot-enable", "boot-disable"
-    ], help="Action to perform.")
+    parser.add_argument(
+        "command", 
+        choices=[
+            "start", "stop", "status", "restart", "list-connections", "kill-connection", "boot-enable", "boot-disable"
+        ], 
+        help="Action to perform."
+    )
     parser.add_argument("--pid", help="PID of the connection to kill (required for kill-connection).", default=None)
 
     args = parser.parse_args()
     ssh_manager = SSHManager()
 
-    command_map = {
-        "start": ssh_manager.start_ssh,
-        "stop": ssh_manager.stop_ssh,
-        "status": lambda: "Running" if ssh_manager.check_ssh_status() else "Not Running",
-        "restart": ssh_manager.restart_ssh,
-        "list-connections": lambda: [
-            f"User: {conn['user']}, Type: {conn['connection_type']}, PID: {conn['pid']}, IP: {conn['ip']}"
-            for conn in ssh_manager.list_connections()
-        ],
-        "kill-connection": lambda: (
-            ssh_manager.kill_connection(args.pid) if args.pid else "Please provide a PID using --pid for kill-connection."
-        ),
-        "boot-enable": ssh_manager.enable_ssh_on_boot,
-        "boot-disable": ssh_manager.disable_ssh_on_boot
-    }
+    match args.command:
+        case "start":
+            result = ssh_manager.start_ssh()
+        case "stop":
+            result = ssh_manager.stop_ssh()
+        case "status":
+            result = "Running" if ssh_manager.check_ssh_status() else "Not Running"
+        case "restart":
+            result = ssh_manager.restart_ssh()
+        case "list-connections":
+            result = [
+                f"User: {conn['user']}, Type: {conn['connection_type']}, PID: {conn['pid']}, IP: {conn['ip']}"
+                for conn in ssh_manager.list_connections()
+            ]
+        case "kill-connection":
+            if args.pid:
+                result = ssh_manager.kill_connection(args.pid)
+            else:
+                result = "Please provide a PID using --pid for kill-connection."
+        case "boot-enable":
+            result = ssh_manager.enable_ssh_on_boot()
+        case "boot-disable":
+            result = ssh_manager.disable_ssh_on_boot()
+        case _:
+            result = "Invalid command!"
 
-    result = command_map.get(args.command, lambda: "Invalid command!")()
     if isinstance(result, list):
         for item in result:
             print(item)
     else:
         print(result)
-
 
 if __name__ == "__main__":
     main()

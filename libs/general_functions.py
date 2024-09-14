@@ -168,6 +168,7 @@ class General:
                 return label, value
         return None, None
 
+
 def main():
     parser = argparse.ArgumentParser(description="General monitoring and operations - temperature stats, reboot, shutdown, active/inactive services, fan speeds.")
     
@@ -179,18 +180,20 @@ def main():
     
     args = parser.parse_args()
     gen = General()
-    if args.command == "cpu-temp":
-        print(gen.get_cpu_temperature())
-    elif args.command == "reboot":
-        print(gen.reboot())
-    elif args.command == "shutdown":
-        print(gen.shutdown())
-    elif args.command == "active-services":
-        print(gen.get_active_services())
-    elif args.command == "inactive-services":
-        print(gen.get_inactive_services())
-    elif args.command == "fan-speeds":
-        print(gen.get_fan_speeds())
+
+    match args.command:
+        case "cpu-temp":
+            print(gen.get_cpu_temperature())
+        case "reboot":
+            print(gen.reboot())
+        case "shutdown":
+            print(gen.shutdown())
+        case "active-services":
+            print(gen.get_active_services())
+        case "inactive-services":
+            print(gen.get_inactive_services())
+        case "fan-speeds":
+            print(gen.get_fan_speeds())
 
 if __name__ == "__main__":
     main()
