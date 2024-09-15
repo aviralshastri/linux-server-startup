@@ -1,25 +1,22 @@
 import serial
 import time
 
-# Define the serial port and baud rate
-SERIAL_PORT = 'COM4'  # Change to your Arduino's serial port
-BAUD_RATE = 9600
-
-# Open serial connection
-ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
-
-def send_message(message):
-    """Send a message to the Arduino."""
-    ser.write((message + '\n').encode())
+# Replace 'COM3' with your actual COM port
+ser = serial.Serial('COM4', 115200, timeout=1)
 
 try:
     while True:
-        message = input("Enter the message to send: ")
-        send_message(message)
+        # Send a message to ESP32
+        message = input("Enter message to send: ")
+        ser.write(message.encode('utf-8'))
+        
+        # Wait for the response from ESP32
         time.sleep(1)
+        response = ser.read(ser.in_waiting or 1).decode('utf-8')
+        print(f"Received: {response}")
 
 except KeyboardInterrupt:
-    print("Program interrupted.")
+    print("Program terminated")
 
 finally:
     ser.close()
