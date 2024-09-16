@@ -1,22 +1,20 @@
 import serial
-import time
 
-# Replace 'COM3' with your actual COM port
-ser = serial.Serial('COM4', 115200, timeout=1)
+# Adjust these parameters based on your setup
+serial_port = 'COM4'  # Change this to your serial port, e.g., COM3 on Windows
+baud_rate = 9600
+
+# Open the serial port
+ser = serial.Serial(serial_port, baud_rate, timeout=1)
+
+print("Starting to read serial data...")
 
 try:
     while True:
-        # Send a message to ESP32
-        message = input("Enter message to send: ")
-        ser.write(message.encode('utf-8'))
-        
-        # Wait for the response from ESP32
-        time.sleep(1)
-        response = ser.read(ser.in_waiting or 1).decode('utf-8')
-        print(f"Received: {response}")
-
+        if ser.in_waiting > 0:
+            message = ser.readline()
+            print(f"Received: {message}")
 except KeyboardInterrupt:
-    print("Program terminated")
-
+    print("Program interrupted.")
 finally:
     ser.close()
