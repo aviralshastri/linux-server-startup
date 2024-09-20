@@ -9,14 +9,11 @@ void RFID::begin() {
 }
 
 String RFID::scan_tag() {
-    // Look for new cards
     if (!mfrc522.PICC_IsNewCardPresent()) {
-        return "";  // If no new card is present, return empty string
+        return ""; 
     }
-
-    // Select one of the cards
     if (!mfrc522.PICC_ReadCardSerial()) {
-        return "";  // If no card could be selected, return empty string
+        return "";
     }
 
     String content = "";
@@ -26,22 +23,24 @@ String RFID::scan_tag() {
     }
     content.toUpperCase();
     
-    delay(1000);  // Delay to prevent continuous reads
+    delay(1000);
     return content;
 }
 
-bool RFID::is_authorized(const String& tag) {
+bool RFID::is_authorized(const String& tag, const String& required_level) {
     for (int i = 0; i < num_tags; i++) {
-        if (authorized_tags[i] == tag) {
+        if (authorized_tags[i].uid == tag && authorized_tags[i].access_level == required_level) {
             return true;
         }
     }
     return false;
 }
 
-bool RFID::add_tag(const String& tag) {
-    if (num_tags < MAX_TAGS && !is_authorized(tag)) {
-        authorized_tags[num_tags++] = tag;
+bool RFID::add_tag(const String& tag, const String& access_level) {
+    if (num_tags < MAX_TAGS) {
+        authorized_tags[num_tags].uid = tag;
+        authorized_tags[num_tags].access_level = access_level;
+        num_tags++;
         return true;
     }
     return false;
@@ -49,7 +48,7 @@ bool RFID::add_tag(const String& tag) {
 
 bool RFID::remove_tag(const String& tag) {
     for (int i = 0; i < num_tags; i++) {
-        if (authorized_tags[i] == tag) {
+        if (authorized_tags[i].uid == tag) {
             for (int j = i; j < num_tags - 1; j++) {
                 authorized_tags[j] = authorized_tags[j + 1];
             }
@@ -62,14 +61,20 @@ bool RFID::remove_tag(const String& tag) {
 
 bool RFID::change_tag(const String& old_tag, const String& new_tag) {
     for (int i = 0; i < num_tags; i++) {
-        if (authorized_tags[i] == old_tag) {
-            authorized_tags[i] = new_tag;
+        if (authorized_tags[i].uid == old_tag) {
+            authorized_tags[i].uid = new_tag;
             return true;
         }
     }
     return false;
 }
 
-bool RFID::change_tag_access_level(const String& tag, int new_level) {
-    return is_authorized(tag);
+bool RFID::change_tag_access_level(const String& tag, const String& new_level) {
+    for (int i = 0; i < num_tags; i++) {
+        if (authorized_tags[i].uid == tag) {
+            authorized_tags[i].access_level = new_level;
+            return true;
+        }
+    }
+    return false;
 }
