@@ -1,26 +1,26 @@
-#include <RTC.h>
+#include "RFID.h"
 
-RTC myRTC("mydadswifi", "1tounlimiteddata");
+RFID rfid;  // Create an instance of the RFID class
 
 void setup() {
-    Serial.begin(57600);
-    myRTC.begin();
+  Serial.begin(115200);
+  rfid.begin();  // Initialize the RFID reader
+  
+  // Add some authorized tags
+  rfid.add_tag("ABCDEF12");
+  rfid.add_tag("98765432");
 }
 
 void loop() {
-    DateTime now = myRTC.get_time();
-    Serial.print("Current Time: ");
-    Serial.print(now.hour());
-    Serial.print(":");
-    Serial.print(now.minute());
-    Serial.print(":");
-    Serial.println(now.second());
-
-    Serial.print("Current Date: ");
-    Serial.println(myRTC.get_date());
-
-    Serial.print("Current Day: ");
-    Serial.println(myRTC.get_day());
-
-    delay(10000);
+  String uid = rfid.scan_tag();
+  if (uid != "") {
+    Serial.print("UID tag scanned: ");
+    Serial.println(uid);
+    
+    if (rfid.is_authorized(uid)) {
+      Serial.println("Access granted!");
+    } else {
+      Serial.println("Access denied!");
+    }
+  }
 }
