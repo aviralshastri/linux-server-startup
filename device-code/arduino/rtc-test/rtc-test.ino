@@ -9,9 +9,11 @@ private:
     RTC_DS3231 rtc;
     WiFiUDP ntpUDP;
     NTPClient timeClient;
+    char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
 public:
     RTC() : timeClient(ntpUDP, "pool.ntp.org", 0, 60000) {}
+
     void rtc_startup(const char* ssid, const char* password) {
         Serial.print("Connecting to ");
         Serial.println(ssid);
@@ -46,7 +48,6 @@ public:
                 rtc.adjust(ntpTime);
                 Serial.println("RTC adjusted to NTP time.");
             } else {
-                // If NTP fails, keep using the current RTC time
                 Serial.println("No internet connection. Keeping current RTC time.");
             }
         } else {
@@ -60,7 +61,7 @@ public:
 
     String get_date() {
         DateTime now = rtc.now();
-        char dateStr[20];
+        char dateStr[11];
         sprintf(dateStr, "%04d/%02d/%02d", now.year(), now.month(), now.day());
         return String(dateStr);
     }
@@ -75,14 +76,10 @@ public:
         rtc.adjust(DateTime(now.year(), now.month(), now.day(), hour, minute, second));
     }
 
-
     void set_date(int year, int month, int day) {
         DateTime now = rtc.now();
         rtc.adjust(DateTime(year, month, day, now.hour(), now.minute(), now.second()));
     }
-
-private:
-    char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 };
 
 RTC myRTC;
