@@ -15,4 +15,4 @@ public:
     String decrypt(const String &ciphertext);
 };
 
-#endif // STRING_ENCRYPTION_H
+#endif

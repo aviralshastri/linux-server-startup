@@ -2,7 +2,7 @@
 
 StringEncryption::StringEncryption(const char* keyStr) {
     memcpy(key, keyStr, 16);
-    memset(iv, 0, 16);  // Using a zero IV for simplicity. In practice, use a random IV.
+    memset(iv, 0, 16);
 }
 
 String StringEncryption::encrypt(const String &plaintext) {

@@ -42,7 +42,7 @@ class AESStringEncryption:
 
 
 if __name__ == "__main__":
-    cipher = AESStringEncryption("0123456789abcdef")
+    cipher = AESStringEncryption("9a0583cba54e1521d662ac18c35c1aba")
     
     original_text = "Hello, World!"
     encrypted_string = cipher.encrypt(original_text)

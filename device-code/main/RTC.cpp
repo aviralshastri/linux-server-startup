@@ -1,32 +1,13 @@
 #include "RTC.h"
 
-RTC::RTC(const char* ssid, const char* password) 
-    : timeClient(ntpUDP, "pool.ntp.org", 0, 60000), ssid(ssid), password(password) {}
+RTC::RTC() 
+    : timeClient(ntpUDP, "pool.ntp.org", 0, 60000) {}
 
-void RTC::begin() {
-    connectToWiFi();
-    initializeRTC();
+void RTC::begin(bool wifiConnected) {
+    initializeRTC(wifiConnected);
 }
 
-void RTC::connectToWiFi() {
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
-    WiFi.begin(ssid, password);
-
-    unsigned long startTime = millis();
-    while (WiFi.status() != WL_CONNECTED && millis() - startTime < 10000) {
-        delay(500);
-        Serial.print(".");
-    }
-
-    if (WiFi.status() == WL_CONNECTED) {
-        Serial.println("\nWiFi connected.");
-    } else {
-        Serial.println("\nWiFi connection failed. Proceeding without NTP.");
-    }
-}
-
-void RTC::initializeRTC() {
+void RTC::initializeRTC(bool wifiConnected) {
     if (!rtc.begin()) {
         Serial.println("Couldn't find RTC");
         Serial.flush();
@@ -35,7 +16,7 @@ void RTC::initializeRTC() {
 
     if (rtc.lostPower()) {
         Serial.println("RTC lost power, trying to set time!");
-        if (WiFi.status() == WL_CONNECTED) {
+        if (wifiConnected) {
             Serial.println("Connected to NTP server, fetching time...");
             timeClient.begin();
             timeClient.update();

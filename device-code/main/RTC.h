@@ -13,16 +13,13 @@ private:
     RTC_DS3231 rtc;
     WiFiUDP ntpUDP;
     NTPClient timeClient;
-    const char* ssid;
-    const char* password;
     char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 
-    void connectToWiFi();
-    void initializeRTC();
+    void initializeRTC(bool wifiConnected);
 
 public:
-    RTC(const char* ssid, const char* password);
-    void begin();
+    RTC();
+    void begin(bool wifiConnected);
     DateTime get_time();
     String get_date();
     String get_day();
