@@ -1,41 +1,55 @@
 from Crypto.Cipher import AES
 import binascii
+import os
 
-def decrypt_string(encrypted_string, key):
-    # Convert the hex string to bytes
-    ciphertext = binascii.unhexlify(encrypted_string)
-    
-    # Create a new AES cipher object
-    cipher = AES.new(key.encode('utf-8'), AES.MODE_CBC, iv=b'\x00' * 16)
-    
-    # Decrypt the ciphertext
-    decrypted = cipher.decrypt(ciphertext)
-    
-    return decrypted
+class AESStringEncryption:
+    def __init__(self, key=None):
+        self.__key = None
+        self.__iv = b'\x00' * 16  # Using a zero IV for simplicity. In practice, use a random IV.
+        if key is not None:
+            self.set_key(key)
 
-# The key used for encryption (must be the same as in Arduino)
-key = "0123456789abcdef"
+    def set_key(self, key):
+        if isinstance(key, str):
+            key = key.encode('utf-8')
+        self.__key = key[:16].ljust(16, b'\0')
 
-# The encrypted string to decrypt
-encrypted = "71dc1ddf22ff896ce45bd46022ddecf5c142851c17fd242de87c01dd28f92020"
+    def encrypt(self, plaintext):
+        if self.__key is None:
+            raise ValueError("Encryption key has not been set. Use set_key() method to set a key.")
+        cipher = AES.new(self.__key, AES.MODE_CBC, self.__iv)
+        padded_data = self._pad(plaintext.encode('utf-8'))
+        ciphertext = cipher.encrypt(padded_data)
+        return binascii.hexlify(ciphertext).decode('utf-8')
 
-try:
-    decrypted_bytes = decrypt_string(encrypted, key)
+    def decrypt(self, ciphertext):
+        if self.__key is None:
+            raise ValueError("Decryption key has not been set. Use set_key() method to set a key.")
+        cipher = AES.new(self.__key, AES.MODE_CBC, self.__iv)
+        ciphertext_bytes = binascii.unhexlify(ciphertext)
+        padded_data = cipher.decrypt(ciphertext_bytes)
+        return self._unpad(padded_data).decode('utf-8')
+
+    def _pad(self, data):
+        padding_length = AES.block_size - len(data) % AES.block_size
+        return data + bytes([padding_length] * padding_length)
+
+    def _unpad(self, padded_data):
+        padding_length = padded_data[-1]
+        if padding_length == 0 or padding_length > AES.block_size:
+            return padded_data.rstrip(b'\x00')
+        return padded_data[:-padding_length]
+
+
+if __name__ == "__main__":
+    cipher = AESStringEncryption("0123456789abcdef")
     
-    print("Decrypted bytes:")
-    print(decrypted_bytes)
-    
-    print("\nDecrypted as UTF-8 string:")
-    print(decrypted_bytes.decode('utf-8', errors='replace'))
-    
-    print("\nDecrypted with non-printable characters escaped:")
-    print(repr(decrypted_bytes.decode('utf-8', errors='replace')))
-    
-    print("\nDecrypted bytes as hex:")
-    print(binascii.hexlify(decrypted_bytes).decode('ascii'))
-    
-    print("\nDecrypted string after removing null bytes:")
-    print(decrypted_bytes.decode('utf-8', errors='replace').rstrip('\x00'))
-    
-except Exception as e:
-    print(f"Decryption failed: {str(e)}")
+    original_text = "Hello, World!"
+    encrypted_string = cipher.encrypt(original_text)
+    print("Encrypted text:", encrypted_string)
+
+    try:
+        decrypted_text = cipher.decrypt("c656b39bb5d74f1ac714a8a2a3d97a6e64c7a6b5bedcfac17f5b7ed3acd99c10")
+        print("Decrypted text:", decrypted_text)
+    except Exception as e:
+        print("Error during decryption:", str(e))
