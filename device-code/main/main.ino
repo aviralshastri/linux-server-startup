@@ -1,57 +1,46 @@
-#include <EEPROM.h>  // Include EEPROM library
+#include <EEPROM.h>
+#define WP_ADDR 0
+#define WI_ADDR 32
+#define UI_ADDR 64
+#define UP_ADDR 96
 
-// Custom data to store in EEPROM
-String data1 = "WP:421dfsa2fds234fgdas";
-String data2 = "WI:dfas342dasgfsgettret";
-String data3 = "UI:fdas342gfd453tgresgf";
-String data4 = "UP:faw45fgvds64gfdstre";
-
-// EEPROM memory addresses for storing strings
-int eepromStartAddr = 50; // Start storing from address 50 to avoid lower memory usage
-
+#define EEPROM_SIZE 128
 void setup() {
   Serial.begin(115200);
   delay(2000);
+  EEPROM.begin(EEPROM_SIZE);
 
-  // Initialize EEPROM with size (512 bytes is the default for ESP32)
-  EEPROM.begin(512);
+  writeString(WP_ADDR, "WP:421dfsa2fds234fgdas");
+  writeString(WI_ADDR, "WI:dfas342dasgfsgettret");
+  writeString(UI_ADDR, "UI:fdas342gfd453tgresgf");
+  writeString(UP_ADDR, "UP:faw45fgvds64gfdstre");
 
-  // Store data into EEPROM
-  storeDataInEEPROM(data1, eepromStartAddr);
-  storeDataInEEPROM(data2, eepromStartAddr + data1.length() + 1); // Add 1 for null terminator
-  storeDataInEEPROM(data3, eepromStartAddr + data1.length() + data2.length() + 2);
-  storeDataInEEPROM(data4, eepromStartAddr + data1.length() + data2.length() + data3.length() + 3);
-
-  // Read data back from EEPROM
-  Serial.println("Reading data back from EEPROM:");
-  Serial.println(readDataFromEEPROM(eepromStartAddr, data1.length()));
-  Serial.println(readDataFromEEPROM(eepromStartAddr + data1.length() + 1, data2.length()));
-  Serial.println(readDataFromEEPROM(eepromStartAddr + data1.length() + data2.length() + 2, data3.length()));
-  Serial.println(readDataFromEEPROM(eepromStartAddr + data1.length() + data2.length() + data3.length() + 3, data4.length()));
-
-  // Make sure to commit the changes to EEPROM
   EEPROM.commit();
+  Serial.println("Stored strings:");
+  Serial.println(readString(WP_ADDR));
+  Serial.println(readString(WI_ADDR));
+  Serial.println(readString(UI_ADDR));
+  Serial.println(readString(UP_ADDR));
 }
 
 void loop() {
-  // The loop is left empty as we are only storing and reading data
+  // Nothing to do in the loop
 }
 
-// Function to store a string in EEPROM
-void storeDataInEEPROM(String data, int startAddr) {
-  for (int i = 0; i < data.length(); i++) {
-    EEPROM.write(startAddr + i, data[i]); // Write each character of the string
+void writeString(int addr, String data) {
+  int len = data.length();
+  for (int i = 0; i < len; i++) {
+    EEPROM.write(addr + i, data[i]);
   }
-  EEPROM.write(startAddr + data.length(), '\0'); // Add null terminator
-  EEPROM.commit();  // Commit the data to EEPROM
+  EEPROM.write(addr + len, '\0'); // Null terminator
 }
 
-// Function to read a string from EEPROM
-String readDataFromEEPROM(int startAddr, int length) {
-  char data[length + 1];  // Create a buffer to hold the string (including null terminator)
-  for (int i = 0; i < length; i++) {
-    data[i] = EEPROM.read(startAddr + i);
-  }
-  data[length] = '\0';  // Add null terminator to the buffer
-  return String(data);   // Convert the char array back to a String
+String readString(int addr) {
+  String data = "";
+  char c;
+  do {
+    c = EEPROM.read(addr++);
+    if (c != '\0') data += c;
+  } while (c != '\0' && addr < EEPROM_SIZE);
+  return data;
 }
