@@ -1,46 +1,31 @@
-#include <EEPROM.h>
-#define WP_ADDR 0
-#define WI_ADDR 32
-#define UI_ADDR 64
-#define UP_ADDR 96
+#include <Arduino.h>
+#include "GENERALS.h"
 
-#define EEPROM_SIZE 128
+GENERALS myGenerals;
+
 void setup() {
-  Serial.begin(115200);
-  delay(2000);
-  EEPROM.begin(EEPROM_SIZE);
+    Serial.begin(115200);
+    delay(3000);
 
-  writeString(WP_ADDR, "WP:421dfsa2fds234fgdas");
-  writeString(WI_ADDR, "WI:dfas342dasgfsgettret");
-  writeString(UI_ADDR, "UI:fdas342gfd453tgresgf");
-  writeString(UP_ADDR, "UP:faw45fgvds64gfdstre");
+    // Initialize the device
+    myGenerals.initialize_device();
 
-  EEPROM.commit();
-  Serial.println("Stored strings:");
-  Serial.println(readString(WP_ADDR));
-  Serial.println(readString(WI_ADDR));
-  Serial.println(readString(UI_ADDR));
-  Serial.println(readString(UP_ADDR));
+    // Add two dummy tags
+    Serial.println(myGenerals.add_tag("tag1", "First Tag", "Admin"));
+    Serial.println(myGenerals.add_tag("tag2", "Second Tag", "User"));
+
+    // Update tag name
+    Serial.println(myGenerals.update_tag_name("tag1", "Updated First Tag"));
+
+    // Update tag role
+    Serial.println(myGenerals.update_tag_role("tag2", "Moderator"));
+
+    // List all tags
+    String allTags = myGenerals.list_all_tags();
+    Serial.println("All Tags:");
+    Serial.println(allTags);
 }
 
 void loop() {
-  // Nothing to do in the loop
-}
-
-void writeString(int addr, String data) {
-  int len = data.length();
-  for (int i = 0; i < len; i++) {
-    EEPROM.write(addr + i, data[i]);
-  }
-  EEPROM.write(addr + len, '\0'); // Null terminator
-}
-
-String readString(int addr) {
-  String data = "";
-  char c;
-  do {
-    c = EEPROM.read(addr++);
-    if (c != '\0') data += c;
-  } while (c != '\0' && addr < EEPROM_SIZE);
-  return data;
+    // Empty loop
 }
