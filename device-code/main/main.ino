@@ -1,57 +1,57 @@
-const int buttonPin = 15; // Pin where the button is connected
-const unsigned long continuousPressTime = 3000; // Time (in milliseconds) for continuous press
-const unsigned long debounceDelay = 50; // Debounce delay in milliseconds
+#include <EEPROM.h>  // Include EEPROM library
 
-unsigned long pressStartTime = 0;
-int pressCount = 0;
-bool isPressed = false;
-unsigned long lastPressTime = 0;
+// Custom data to store in EEPROM
+String data1 = "WP:421dfsa2fds234fgdas";
+String data2 = "WI:dfas342dasgfsgettret";
+String data3 = "UI:fdas342gfd453tgresgf";
+String data4 = "UP:faw45fgvds64gfdstre";
+
+// EEPROM memory addresses for storing strings
+int eepromStartAddr = 50; // Start storing from address 50 to avoid lower memory usage
 
 void setup() {
-  pinMode(buttonPin, INPUT_PULLUP); // Use internal pull-up resistor
   Serial.begin(115200);
+  delay(2000);
+
+  // Initialize EEPROM with size (512 bytes is the default for ESP32)
+  EEPROM.begin(512);
+
+  // Store data into EEPROM
+  storeDataInEEPROM(data1, eepromStartAddr);
+  storeDataInEEPROM(data2, eepromStartAddr + data1.length() + 1); // Add 1 for null terminator
+  storeDataInEEPROM(data3, eepromStartAddr + data1.length() + data2.length() + 2);
+  storeDataInEEPROM(data4, eepromStartAddr + data1.length() + data2.length() + data3.length() + 3);
+
+  // Read data back from EEPROM
+  Serial.println("Reading data back from EEPROM:");
+  Serial.println(readDataFromEEPROM(eepromStartAddr, data1.length()));
+  Serial.println(readDataFromEEPROM(eepromStartAddr + data1.length() + 1, data2.length()));
+  Serial.println(readDataFromEEPROM(eepromStartAddr + data1.length() + data2.length() + 2, data3.length()));
+  Serial.println(readDataFromEEPROM(eepromStartAddr + data1.length() + data2.length() + data3.length() + 3, data4.length()));
+
+  // Make sure to commit the changes to EEPROM
+  EEPROM.commit();
 }
 
 void loop() {
-  // Read the button state
-  int buttonState = digitalRead(buttonPin);
+  // The loop is left empty as we are only storing and reading data
+}
 
-  // Check if the button is pressed
-  if (buttonState == LOW) {
-    if (!isPressed) {
-      // Button just pressed
-      isPressed = true;
-      pressStartTime = millis(); // Record the time when button was pressed
-    }
-    
-    // Check if the continuous press time exceeds the threshold
-    if (isPressed && (millis() - pressStartTime >= continuousPressTime)) {
-      // Continuous press detected
-      Serial.println("Continuous press detected!");
-      pressCount = 0; // Reset press count for triple press detection
-      delay(debounceDelay); // Wait for debounce
-      while (digitalRead(buttonPin) == LOW); // Wait for button release
-      isPressed = false; // Reset button state
-      delay(500); // Delay to avoid immediate detection of triple press
-    }
-  } else {
-    // Button is released
-    if (isPressed) {
-      // Check the timing for triple press detection
-      unsigned long currentTime = millis();
-      if (currentTime - lastPressTime <= 500) { // Time between presses for triple press
-        pressCount++;
-        if (pressCount == 3) {
-          // Triple press detected
-          Serial.println("Triple press detected!");
-          pressCount = 0; // Reset for next pattern
-        }
-      } else {
-        // Reset the press count if too much time has passed
-        pressCount = 1; // Start counting this press
-      }
-      lastPressTime = currentTime; // Update the last press time
-      isPressed = false; // Reset button state
-    }
+// Function to store a string in EEPROM
+void storeDataInEEPROM(String data, int startAddr) {
+  for (int i = 0; i < data.length(); i++) {
+    EEPROM.write(startAddr + i, data[i]); // Write each character of the string
   }
+  EEPROM.write(startAddr + data.length(), '\0'); // Add null terminator
+  EEPROM.commit();  // Commit the data to EEPROM
+}
+
+// Function to read a string from EEPROM
+String readDataFromEEPROM(int startAddr, int length) {
+  char data[length + 1];  // Create a buffer to hold the string (including null terminator)
+  for (int i = 0; i < length; i++) {
+    data[i] = EEPROM.read(startAddr + i);
+  }
+  data[length] = '\0';  // Add null terminator to the buffer
+  return String(data);   // Convert the char array back to a String
 }
