@@ -1,6 +1,5 @@
 #include "GENERALS.h"
 #include <ArduinoJson.h>
-#include <vector>
 
 Preferences GENERALS::preferences;
 

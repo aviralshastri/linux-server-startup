@@ -32,4 +32,4 @@ public:
     bool change_tag_access_level(const String& tag, const String& new_level);
 };
 
-#endif // RFID_H
+#endif

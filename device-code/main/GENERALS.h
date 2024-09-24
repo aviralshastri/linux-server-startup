@@ -5,7 +5,6 @@
 #include "esp_system.h"
 #include <WiFi.h>
 #include <Preferences.h>
-#include <EEPROM.h>
 #include <ArduinoJson.h>
 
 class GENERALS {
@@ -26,7 +25,6 @@ public:
 
 private:
     static Preferences preferences;
-    static const int EEPROM_SIZE = 256;
     static int getAddress(const String& varName);
 };
 

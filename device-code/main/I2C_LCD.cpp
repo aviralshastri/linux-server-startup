@@ -53,6 +53,7 @@ void I2C_LCD::test_display() {
       delay(200);
     }
   }
+  delay(200);
 }
 
 
