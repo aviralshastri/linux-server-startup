@@ -159,17 +159,16 @@ String GENERALS::update_tag_name(const String& id, const String& newName) {
 
 String GENERALS::update_tag_role(const String& id, const String& newRole) {
     if (!isValidRole(newRole)) {
-        return "invalid role: must be 'admin' or 'user'";
+        return "invalid name: special characters are not allowed";
     }
 
     preferences.begin("rfid-tags", false);
-
-    if (!tag_exists(id)) {
+    if (!preferences.isKey(id.c_str())) {
         preferences.end();
         return "tag does not exist";
     }
 
-    String currentData = get_tag_details_by_id(id.c_str());  
+    String currentData = preferences.getString(id.c_str(), "{}");
     DynamicJsonDocument doc(1024);
     DeserializationError error = deserializeJson(doc, currentData);
     if (error) {
@@ -181,10 +180,14 @@ String GENERALS::update_tag_role(const String& id, const String& newRole) {
 
     String updatedData;
     serializeJson(doc, updatedData);
-    preferences.putString(id.c_str(), updatedData);
-    preferences.end();
 
-    return "role updated successfully";
+    if (preferences.putString(id.c_str(), updatedData)) {
+        preferences.end();
+        return "role updated successfully";
+    } else {
+        preferences.end();
+        return "failed to save updated data";
+    }
 }
 
 String GENERALS::remove_tag(const String& id) {

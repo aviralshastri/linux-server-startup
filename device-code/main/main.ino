@@ -10,6 +10,7 @@ void setup() {
   Serial.println(myGenerals.get_tag_details_by_id("tag1"));
   Serial.println("Update result:");
   Serial.println(myGenerals.update_tag_name("tag1", "amay"));
+  Serial.println(myGenerals.update_tag_role("tag1", "user"));
   Serial.println("After update:");
   Serial.println(myGenerals.get_tag_details_by_id("tag1"));
 }
