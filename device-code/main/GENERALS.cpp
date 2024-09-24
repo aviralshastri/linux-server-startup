@@ -29,7 +29,16 @@ bool GENERALS::connectToWiFi(const char* ssid, const char* password) {
   }
 }
 
+void GENERALS::clearNamespace(const char* namespaceName) {
+  preferences.begin(namespaceName, false);
+  preferences.clear();                  
+  preferences.end();                    
+}
+
 bool GENERALS::initialize_device() {
+  clearNamespace("settings-keys");
+  clearNamespace("rfid-tags");
+
   preferences.begin("settings-keys", false);
   preferences.putString("SP", "false");
   preferences.putString("WP", "");
@@ -40,17 +49,16 @@ bool GENERALS::initialize_device() {
   preferences.putString("OEK", "");
   preferences.end();
 
-  preferences.begin("tags", false);
+  preferences.begin("rfid-tags", false);
   preferences.putInt("TT", 0);
   preferences.end();
 
   return true;
 }
 
-
 void GENERALS::write_settings_keys(const String& key, const String& value) {
   preferences.begin("settings-keys", false);
-  if (key == "sp" || key == "ek" || key == "obk" || key == "tt") {
+  if (key == "SP" || key == "EK" || key == "OEK" || key == "TT") {
     preferences.putString(key.c_str(), value);
     Serial.println("Data written: " + key + " = " + value);
   } else {
@@ -67,11 +75,10 @@ String GENERALS::read_settings_keys(const String& key) {
 }
 
 bool isValidRole(const String& role) {
-    return (role == "Admin" || role == "User");
+    return (role == "admin" || role == "user");
 }
 
 bool isValidName(const String& name) {
-    // Check for special characters (only allow letters, numbers, and spaces)
     for (char c : name) {
         if (!isalnum(c) && c != ' ') {
             return false;
@@ -91,7 +98,7 @@ String GENERALS::add_tag(const String& id, const String& name, const String& rol
         return "exist";
     }
 
-    preferences.begin("tags", false);
+    preferences.begin("rfid-tags", false);
     
     int ttValue = preferences.getInt("TT", 0);
     if (ttValue >= 3) {
@@ -121,64 +128,67 @@ String GENERALS::update_tag_name(const String& id, const String& newName) {
         return "invalid name: special characters are not allowed";
     }
 
-    preferences.begin("tags", false);
-
-    if (!tag_exists(id)) {
+    preferences.begin("rfid-tags", false);
+    if (!preferences.isKey(id.c_str())) {
         preferences.end();
         return "tag does not exist";
     }
 
-    String tagInfo = preferences.getString(id.c_str(), "none");
-    if (tagInfo == "none") {
+    String currentData = preferences.getString(id.c_str(), "{}");
+    DynamicJsonDocument doc(1024);
+    DeserializationError error = deserializeJson(doc, currentData);
+    if (error) {
         preferences.end();
-        return "failed to retrieve tag info";
+        return "failed to parse current data";
     }
 
-    DynamicJsonDocument doc(256);
-    deserializeJson(doc, tagInfo);
     doc["name"] = newName;
 
-    String updatedInfo;
-    serializeJson(doc, updatedInfo);
-    preferences.putString(id.c_str(), updatedInfo);
-    
-    preferences.end();
-    return "name updated successfully";
+    String updatedData;
+    serializeJson(doc, updatedData);
+
+    if (preferences.putString(id.c_str(), updatedData)) {
+        preferences.end();
+        return "name updated successfully";
+    } else {
+        preferences.end();
+        return "failed to save updated data";
+    }
 }
+
 
 String GENERALS::update_tag_role(const String& id, const String& newRole) {
     if (!isValidRole(newRole)) {
-        return "invalid role: must be 'Admin' or 'User'";
+        return "invalid role: must be 'admin' or 'user'";
     }
 
-    preferences.begin("tags", false);
+    preferences.begin("rfid-tags", false);
 
     if (!tag_exists(id)) {
         preferences.end();
         return "tag does not exist";
     }
 
-    String tagInfo = preferences.getString(id.c_str(), "none");
-    if (tagInfo == "none") {
+    String currentData = get_tag_details_by_id(id.c_str());  
+    DynamicJsonDocument doc(1024);
+    DeserializationError error = deserializeJson(doc, currentData);
+    if (error) {
         preferences.end();
-        return "failed to retrieve tag info";
+        return "failed to parse current data";
     }
 
-    DynamicJsonDocument doc(256);
-    deserializeJson(doc, tagInfo);
     doc["role"] = newRole;
 
-    String updatedInfo;
-    serializeJson(doc, updatedInfo);
-    preferences.putString(id.c_str(), updatedInfo);
-    
+    String updatedData;
+    serializeJson(doc, updatedData);
+    preferences.putString(id.c_str(), updatedData);
     preferences.end();
+
     return "role updated successfully";
 }
 
-
 String GENERALS::remove_tag(const String& id) {
-    preferences.begin("tags", false);
+    preferences.begin("rfid-tags", false);
     
     int ttValue = preferences.getInt("TT", -1);
     if (ttValue <= 1) {
@@ -193,25 +203,28 @@ String GENERALS::remove_tag(const String& id) {
     }
 
     preferences.remove(id.c_str());
+    preferences.putInt("TT", ttValue - 1); 
     preferences.end();
     return "success";
 }
 
 bool GENERALS::tag_exists(const String& id) {
-  preferences.begin("tags", false);
-  int ttValue = preferences.getInt("TT", -1); 
-  if (ttValue == 0) {
-    preferences.end();
-    return false;
-  }
+  preferences.begin("rfid-tags", false);
   String existingTag = preferences.getString(id.c_str(), "none");
   preferences.end();
-  return existingTag != "none"; 
+  return existingTag != "none";
+}
+
+String GENERALS::get_tag_details_by_id(const String& id) {
+    preferences.begin("rfid-tags", true);
+    String tagData = preferences.getString(id.c_str(), "{}");
+    preferences.end();
+    return tagData;
 }
 
 String GENERALS::list_all_tags() {
   String tagsList = "";
-  preferences.begin("tags", false);
+  preferences.begin("rfid-tags", false);
   int ttValue = preferences.getInt("TT", 0);
 
   for (int i = 0; i < ttValue; i++) {
