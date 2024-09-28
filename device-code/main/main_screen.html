@@ -1,315 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuration Page</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings Page</title>
     <style>
-        body {
-            background-color: #000;
-            color: #fff;
-        }
-        .tab {
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-bottom: 2px solid transparent;
-            margin-bottom: 0.5rem;
-        }
-        .tab.active {
-            border-bottom: 2px solid #fff;
-            color: #fff;
-            font-weight: bold;
-        }
-        .tab.inactive {
-            color: #aaa;
-        }
-        .card {
-            background-color: #000;
-            border: 1px solid #333;
-            margin: 0 auto;
-            padding: 1.5rem;
-            width: 90%;
-            max-width: 600px;
-            border-radius: 0.5rem;
-        }
-        input, select, button {
-            background-color: #333;
-            color: #fff;
-            border: 1px solid #555;
-        }
-        input:focus, select:focus, button:focus {
-            outline: none;
-            border-color: #fff;
-        }
-        .table-row.selected {
-            background-color: #444;
-        }
-        .separator {
-            border-top: 1px solid #555;
-            margin: 1rem 0;
-        }
-        .logout-button {
-            margin-top: 1rem;
-            margin-bottom: 0.5rem;
-            transition: background-color 0.3s;
-        }
-        .logout-button:hover {
-            background-color: #c53030;
-        }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
+        background: linear-gradient(45deg, #1a1a2e 0%, #16213e 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 500px;
+      }
+
+      .tabs {
+        display: flex;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px 16px 0 0;
+        overflow: hidden;
+      }
+
+      .tab {
+        flex: 1;
+        padding: 0.9rem;
+        background: rgba(255, 255, 255, 0.05);
+        text-align: center;
+        color: #ffffff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        white-space: nowrap;
+        font-size: 1rem;
+      }
+
+      .tab.active {
+        background: rgb(0, 93, 222);
+      }
+
+      .content {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+        display: none;
+      }
+
+      .content.active {
+        display: block;
+      }
+
+      h2 {
+        color: #ffffff;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-align: center;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .input-group {
+        margin-bottom: 1rem;
+      }
+
+      label {
+        display: block;
+        color: #a0a0a0;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+      }
+
+      input {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 1rem;
+      }
+
+      input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+      }
+
+      button {
+        width: 100%;
+        background: rgb(0, 93, 222);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background: rgb(0, 74, 192);
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1rem 0;
+        color: #a0a0a0;
+      }
+
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .tags-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .tags-table th,
+      .tags-table td {
+        padding: 0.75rem 1rem;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+      }
+
+      .tags-table th {
+        background: rgba(255, 255, 255, 0.1);
+        font-weight: 600;
+      }
+
+      .tags-table td {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .tags-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .edit-btn,
+      .delete-btn {
+        padding: 0.5rem 0.75rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        color: #ffffff;
+        transition: background-color 0.3s ease;
+      }
+
+      .edit-btn {
+        background-color: rgb(0, 93, 222);
+      }
+
+      .delete-btn {
+        background-color: rgb(255, 68, 68);
+      }
+
+      .edit-btn:hover {
+        background-color: rgb(0, 74, 192);
+      }
+
+      .delete-btn:hover {
+        background-color: rgb(204, 0, 0);
+      }
     </style>
-</head>
-<body class="p-8">
-    <div class="card shadow-lg">
-        <div class="flex justify-between border-b mb-2">
-            <div class="flex">
-                <div class="tab active" onclick="showTab('basic')">Basic Configurations</div>
-                <div class="tab inactive" onclick="showTab('rfid')">RFID Configurations</div>
-            </div>
-            <button class="bg-red-500 rounded-md px-4 py-2 logout-button flex items-center justify-center">
-                <svg fill="#ffffff" height="25px" width="25px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" 
-                    viewBox="0 0 330 330" xml:space="preserve">
-                    <g id="XMLID_2_">
-                        <path id="XMLID_4_" d="M51.213,180h173.785c8.284,0,15-6.716,15-15s-6.716-15-15-15H51.213l19.394-19.393
-                            c5.858-5.857,5.858-15.355,0-21.213c-5.856-5.858-15.354-5.858-21.213,0L4.397,154.391c-0.348,0.347-0.676,0.71-0.988,1.09
-                            c-0.076,0.093-0.141,0.193-0.215,0.288c-0.229,0.291-0.454,0.583-0.66,0.891c-0.06,0.09-0.109,0.185-0.168,0.276
-                            c-0.206,0.322-0.408,0.647-0.59,0.986c-0.035,0.067-0.064,0.138-0.099,0.205c-0.189,0.367-0.371,0.739-0.53,1.123
-                            c-0.02,0.047-0.034,0.097-0.053,0.145c-0.163,0.404-0.314,0.813-0.442,1.234c-0.017,0.053-0.026,0.108-0.041,0.162
-                            c-0.121,0.413-0.232,0.83-0.317,1.257c-0.025,0.127-0.036,0.258-0.059,0.386c-0.062,0.354-0.124,0.708-0.159,1.069
-                            C0.025,163.998,0,164.498,0,165s0.025,1.002,0.076,1.498c0.035,0.366,0.099,0.723,0.16,1.08c0.022,0.124,0.033,0.251,0.058,0.374
-                            c0.086,0.431,0.196,0.852,0.318,1.269c0.015,0.049,0.024,0.101,0.039,0.15c0.129,0.423,0.28,0.836,0.445,1.244
-                            c0.018,0.044,0.031,0.091,0.05,0.135c0.16,0.387,0.343,0.761,0.534,1.13c0.033,0.065,0.061,0.133,0.095,0.198
-                            c0.184,0.341,0.387,0.669,0.596,0.994c0.056,0.088,0.104,0.181,0.162,0.267c0.207,0.309,0.434,0.603,0.662,0.895
-                            c0.073,0.094,0.138,0.193,0.213,0.285c0.313,0.379,0.641,0.743,0.988,1.09l44.997,44.997C52.322,223.536,56.161,225,60,225
-                            s7.678-1.464,10.606-4.394c5.858-5.858,5.858-15.355,0-21.213L51.213,180z"/>
-                        <path id="XMLID_5_" d="M207.299,42.299c-40.944,0-79.038,20.312-101.903,54.333c-4.62,6.875-2.792,16.195,4.083,20.816
-                            c6.876,4.62,16.195,2.794,20.817-4.083c17.281-25.715,46.067-41.067,77.003-41.067C258.414,72.299,300,113.884,300,165
-                            s-41.586,92.701-92.701,92.701c-30.845,0-59.584-15.283-76.878-40.881c-4.639-6.865-13.961-8.669-20.827-4.032
-                            c-6.864,4.638-8.67,13.962-4.032,20.826c22.881,33.868,60.913,54.087,101.737,54.087C274.956,287.701,330,232.658,330,165
-                            S274.956,42.299,207.299,42.299z"/>
-                    </g>
-                </svg>
-                <h1 class="font-semibold ml-2 text-lg text-center">Logout</h1>
-            </button>
-        </div>
-        <div id="basic" class="tab-content">
-            <div class="mb-4">
-                <input type="text" placeholder="WiFi SSID" class="w-full h-10 rounded-md px-3 mb-3">
-                <input type="password" placeholder="WiFi Password" class="w-full h-10 rounded-md px-3 mb-3">
-                <input type="text" placeholder="User ID" class="w-full h-10 rounded-md px-3 mb-3">
-                <input type="password" placeholder="User Password" class="w-full h-10 rounded-md px-3 mb-3">
-                <button class="bg-blue-500 rounded-md px-4 py-2">Save</button>
-            </div>
-        </div>
-        <div id="rfid" class="tab-content hidden">
-            <table class="min-w-full border-collapse mb-4">
-                <thead>
-                    <tr class="bg-slate-700">
-                        <th class="border border-gray-600 px-4 py-2 text-left">ID</th>
-                        <th class="border border-gray-600 px-4 py-2 text-left">Name</th>
-                        <th class="border border-gray-600 px-4 py-2 text-left">Role</th>
-                    </tr>
-                </thead>
-                <tbody id="tagTable">
-                    <tr class="table-row cursor-pointer" onclick="selectRow(this)">
-                        <td class="border border-gray-600 px-4 py-2">1</td>
-                        <td class="border border-gray-600 px-4 py-2">Dummy Tag 1</td>
-                        <td class="border border-gray-600 px-4 py-2">Admin</td>
-                    </tr>
-                    <tr class="table-row cursor-pointer" onclick="selectRow(this)">
-                        <td class="border border-gray-600 px-4 py-2">2</td>
-                        <td class="border border-gray-600 px-4 py-2">Dummy Tag 2</td>
-                        <td class="border border-gray-600 px-4 py-2">User</td>
-                    </tr>
-                    <tr class="table-row cursor-pointer" onclick="selectRow(this)">
-                        <td class="border border-gray-600 px-4 py-2">3</td>
-                        <td class="border border-gray-600 px-4 py-2">Dummy Tag 3</td>
-                        <td class="border border-gray-600 px-4 py-2">Admin</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="flex space-x-2 mb-4">
-                <button id="deleteButton" class="bg-red-500 rounded-md px-4 py-2" onclick="deleteSelected()">Delete Selected</button>
-            </div>
-            <div class="separator"></div>
-            <span id="tagLimitMessage" class="text-red-500 mb-2 hidden text-center block font-bold text-xl">3 tags already exist.</span>
-            <div class="flex mb-4">
-                <div class="tab active" onclick="showSubTab('addTags')">Add Tags</div>
-                <div class="tab inactive" onclick="showSubTab('updateTags')">Update Tags</div>
-            </div>
-            <div id="addTags" class="sub-tab-content">
-                <button id="scanButton" class="bg-blue-500 rounded-md px-4 py-2 mb-3" onclick="scanTag()">Scan Tag</button>
-                <input type="text" placeholder="Tag ID" class="w-full h-10 rounded-md px-3 mb-3" id="addTagId" disabled>
-                <input type="text" placeholder="Tag Name" class="w-full h-10 rounded-md px-3 mb-3" id="addTagName">
-                <select class="w-full h-10 rounded-md px-3 mb-3" id="addTagRole">
-                    <option value="">Select Role</option>
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
-                </select>
-                <button id="addButton" class="bg-green-500 rounded-md px-4 py-2" onclick="saveTag()">Add</button>
-            </div>
-            <div id="updateTags" class="sub-tab-content hidden">
-                <input type="text" placeholder="Tag ID" class="w-full h-10 rounded-md px-3 mb-3" id="updateTagId" disabled>
-                <input type="text" placeholder="Tag Name" class="w-full h-10 rounded-md px-3 mb-3" id="updateTagName">
-                <select class="w-full h-10 rounded-md px-3 mb-3" id="updateTagRole">
-                    <option value="">Select Role</option>
-                    <option value="admin">Admin</option>
-                    <option value="user">User</option>
-                </select>
-            </div>
-	                   <button id="updateButton" class="bg-green-500 rounded-md px-4 py-2 hidden" onclick="updateSelected()">Update Selected</button>
-        </div>
+  </head>
+  <body>
+    <div class="container">
+      <div class="tabs">
+        <div class="tab active" data-tab="tab1">Wi-Fi Configuration</div>
+        <div class="tab" data-tab="tab2">User Configuration</div>
+        <div class="tab" data-tab="tab3">Tags Configuration</div>
+      </div>
+
+      <div class="content active" id="tab1">
+        <h2>Wi-Fi Configuration</h2>
+        <form>
+          <div class="input-group">
+            <label for="ssid">SSID</label>
+            <input
+              type="text"
+              id="ssid"
+              name="ssid"
+              placeholder="Enter your Wi-Fi SSID"
+            />
+          </div>
+          <div class="input-group">
+            <label for="wifi-password">Wi-Fi Password</label>
+            <input
+              type="password"
+              id="wifi-password"
+              name="wifi-password"
+              placeholder="Enter your Wi-Fi password"
+            />
+          </div>
+          <button type="submit">Save Wi-Fi Settings</button>
+        </form>
+      </div>
+      <div class="content" id="tab2">
+        <h2>User Configuration</h2>
+        <form>
+          <div class="input-group">
+            <label for="user-id">User ID</label>
+            <input
+              type="text"
+              id="user-id"
+              name="user-id"
+              placeholder="Enter your User ID"
+            />
+          </div>
+          <div class="input-group">
+            <label for="user-password">User Password</label>
+            <input
+              type="password"
+              id="user-password"
+              name="user-password"
+              placeholder="Enter your User password"
+            />
+          </div>
+          <button type="submit">Save User Info</button>
+        </form>
+      </div>
+      <div class="content" id="tab3">
+        <h2>Tags Configuration</h2>
+        <table class="tags-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>John Doe</td>
+              <td>Admin</td>
+              <td>
+                <button class="edit-btn">Edit</button>
+                <button class="delete-btn">Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <script>
-        let selectedRow = null;
+      const tabs = document.querySelectorAll(".tab");
+      const contents = document.querySelectorAll(".content");
 
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.getElementById(tabName).classList.remove('hidden');
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
 
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-                tab.classList.add('inactive');
-            });
-            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.add('active');
-            document.querySelector(`.tab[onclick="showTab('${tabName}')"]`).classList.remove('inactive');
-        }
-
-        function showSubTab(subTabName) {
-            document.querySelectorAll('.sub-tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.getElementById(subTabName).classList.remove('hidden');
-
-            document.querySelectorAll('.tab').forEach(tab => {
-                if (tab.getAttribute('onclick').includes(subTabName)) {
-                    tab.classList.add('active');
-                    tab.classList.remove('inactive');
-                } else {
-                    tab.classList.remove('active');
-                    tab.classList.add('inactive');
-                }
-            });
-
-            if (subTabName === 'updateTags') {
-                document.getElementById('updateButton').classList.remove('hidden');
-            } else {
-                document.getElementById('updateButton').classList.add('hidden');
+          const target = tab.getAttribute("data-tab");
+          contents.forEach((content) => {
+            content.classList.remove("active");
+            if (content.id === target) {
+              content.classList.add("active");
             }
-        }
-
-        function selectRow(row) {
-            if (selectedRow === row) {
-                selectedRow.classList.remove('selected');
-                selectedRow = null;
-                clearUpdateFields();
-            } else {
-                if (selectedRow) {
-                    selectedRow.classList.remove('selected');
-                }
-                selectedRow = row;
-                selectedRow.classList.add('selected');
-                fillUpdateFields();
-            }
-        }
-
-        function deleteSelected() {
-            if (selectedRow) {
-                selectedRow.remove();
-                selectedRow = null;
-                checkTagLimit();
-                clearUpdateFields();
-            }
-        }
-
-        function updateSelected() {
-            if (selectedRow) {
-                const id = selectedRow.cells[0].innerText;
-                const name = document.getElementById('updateTagName').value;
-                const role = document.getElementById('updateTagRole').value;
-
-                if (name && role) {selectedRow.cells[1].innerText = name;
-                    selectedRow.cells[2].innerText = role;
-                    alert(`Tag Updated: ID: ${id}, Name: ${name}, Role: ${role}`);
-                    clearUpdateFields();
-                }
-            }
-        }
-
-        function checkTagLimit() {
-            const rows = document.querySelectorAll('#tagTable tr');
-            const tagLimitMessage = document.getElementById('tagLimitMessage');
-            const addTagsArea = document.getElementById('addTags');
-            const scanButton = document.getElementById('scanButton');
-            const addButton = document.getElementById('addButton');
-
-            if (rows.length >= 3) {
-                tagLimitMessage.classList.remove('hidden');
-                addTagsArea.querySelectorAll('input:not([placeholder="Tag ID"]), select').forEach(element => {
-                    element.disabled = true;
-                });
-                scanButton.disabled = true;
-                addButton.disabled = true;
-            } else {
-                tagLimitMessage.classList.add('hidden');
-                addTagsArea.querySelectorAll('input:not([placeholder="Tag ID"]), select').forEach(element => {
-                    element.disabled = false;
-                });
-                scanButton.disabled = false;
-                addButton.disabled = false;
-            }
-        }
-
-        function scanTag() {
-            alert("Scanning Tag...");
-            // Simulating a scanned tag ID
-            document.getElementById('addTagId').value = Math.floor(Math.random() * 1000000).toString();
-        }
-
-        function saveTag() {
-            const id = document.getElementById('addTagId').value;
-            const name = document.getElementById('addTagName').value;
-            const role = document.getElementById('addTagRole').value;
-            const rows = document.querySelectorAll('#tagTable tr');
-
-            if (id && name && role) {
-                const newRow = `<tr class="table-row cursor-pointer" onclick="selectRow(this)">
-                                    <td class="border border-gray-600 px-4 py-2">${id}</td>
-                                    <td class="border border-gray-600 px-4 py-2">${name}</td>
-                                    <td class="border border-gray-600 px-4 py-2">${role}</td>
-                                </tr>`;
-                document.getElementById('tagTable').insertAdjacentHTML('beforeend', newRow);
-                checkTagLimit();
-                alert(`Tag Added: ID: ${id}, Name: ${name}, Role: ${role}`);
-                clearAddFields();
-            }
-        }
-
-        function fillUpdateFields() {
-            if (selectedRow) {
-                document.getElementById('updateTagId').value = selectedRow.cells[0].innerText;
-                document.getElementById('updateTagName').value = selectedRow.cells[1].innerText;
-                document.getElementById('updateTagRole').value = selectedRow.cells[2].innerText.toLowerCase();
-            }
-        }
-
-        function clearUpdateFields() {
-            document.getElementById('updateTagId').value = '';
-            document.getElementById('updateTagName').value = '';
-            document.getElementById('updateTagRole').value = '';
-        }
-
-        function clearAddFields() {
-            document.getElementById('addTagId').value = '';
-            document.getElementById('addTagName').value = '';
-            document.getElementById('addTagRole').value = '';
-        }
-
-        function logout() {
-            alert("Logged out!");
-        }
-
-        // Initialize the tag limit check
-        checkTagLimit();
+          });
+        });
+      });
     </script>
-</body>
+  </body>
 </html>
