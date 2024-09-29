@@ -1,17 +1,18 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-const char* ssid = "ESP32_Access_Point";
-const char* password = "12345678";
+const char *ssid = "ESP32_Access_Point";
+const char *password = "12345678";
 
 WebServer server(80);
 
-const char* loginUser = "admin";
-const char* loginPassword = "admin";
+const char *loginUser = "admin";
+const char *loginPassword = "admin";
 
 bool isAuthenticated = false;
 
-void handleRoot() {
+void handleRoot()
+{
   String html = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -185,27 +186,35 @@ void handleRoot() {
   server.send(200, "text/html", html);
 }
 
-void handleLogin() {
-  if (server.hasArg("userid") && server.hasArg("password")) {
+void handleLogin()
+{
+  if (server.hasArg("userid") && server.hasArg("password"))
+  {
     String user = server.arg("userid");
     String pass = server.arg("password");
-    if (user == loginUser && pass == loginPassword) {
+    if (user == loginUser && pass == loginPassword)
+    {
       isAuthenticated = true;
       server.sendHeader("Location", "/configuration");
       server.send(302, "text/plain", "Redirecting to configuration...");
-    } else {
+    }
+    else
+    {
       isAuthenticated = false;
       server.send(401, "text/plain", "Authentication Failed!");
       handleRoot();
     }
-  } else {
+  }
+  else
+  {
     server.send(400, "text/plain", "Invalid Request");
   }
 }
 
-
-void handleConfiguration() {
-  if (isAuthenticated) {
+void handleConfiguration()
+{
+  if (isAuthenticated)
+  {
     String html = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
@@ -572,10 +581,10 @@ void handleConfiguration() {
             <tbody id="table-body"></tbody>
           </table>
           <div class="rfid-buttons">
-            <button class="add-btn">Add Tag</button>
+            <button class="add-btn" id="add-tag">Add Tag</button>
             <div class="edit-delete">
-              <button class="edit-btn">Edit</button>
-              <button class="delete-btn">Delete</button>
+              <button class="edit-btn" id="edit-tag">Edit</button>
+              <button class="delete-btn" id="delete-tag">Delete</button>
             </div>
           </div>
         </div>
@@ -668,38 +677,148 @@ void handleConfiguration() {
             <tbody id="mobile-table-body"></tbody>
           </table>
           <div class="rfid-buttons">
-            <button class="add-btn">Add Tag</button>
+            <button class="add-btn" id="add-tag-mobile">Add Tag</button>
             <div class="edit-delete">
-              <button class="edit-btn">Edit</button>
-              <button class="delete-btn">Delete</button>
+              <button class="edit-btn" id="edit-tag-mobile">Edit</button>
+              <button class="delete-btn" id="delete-tag-mobile">Delete</button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <script>
-      const tableBodyMobile = document.getElementById("mobile-table-body");
-      const tableBody = document.getElementById("table-body");
-      const tags = [
-        { id: 1, name: "Tag 1", role: "Admin" },
-        { id: 2, name: "Tag 2", role: "User" },
-      ];
-      tags.forEach((tag) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-        <td class="table-ele">${tag.id}</td>
-        <td class="table-ele">${tag.name}</td>
-        <td class="table-ele">${tag.role}</td>`;
-        tableBodyMobile.appendChild(row);
+      const addButton = document.getElementById("add-tag");
+      addButton.addEventListener("click", async function () {
+        sendRFIDRequest("/add");
       });
-      tags.forEach((tag) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-        <td class="table-ele">${tag.id}</td>
-        <td class="table-ele">${tag.name}</td>
-        <td class="table-ele">${tag.role}</td>`;
-        tableBody.appendChild(row);
+
+      const deleteButton = document.getElementById("delete-tag");
+      deleteButton.addEventListener("click", async function () {
+        sendRFIDRequest("/delete");
       });
+
+      const editButton = document.getElementById("edit-tag");
+      editButton.addEventListener("click", async function () {
+        sendRFIDRequest("/edit");
+      });
+
+      const addButtonMobile = document.getElementById("add-tag-mobile");
+      addButtonMobile.addEventListener("click", async function () {
+        sendRFIDRequest("/add");
+      });
+
+      const deleteButtonMobile = document.getElementById("delete-tag-mobile");
+      deleteButtonMobile.addEventListener("click", async function () {
+        sendRFIDRequest("/delete");
+      });
+
+      const editButtonMobile = document.getElementById("edit-tag-mobile");
+      editButtonMobile.addEventListener("click", async function () {
+        sendRFIDRequest("/edit");
+      });
+
+      async function sendRFIDRequest(url) {
+        if (url != "/add") {
+          if (!selectedtag.id) {
+            alert("Please select a tag first");
+            return;
+          }
+        }
+
+        const formData = new FormData();
+        formData.append("id", selectedtag.id);
+        formData.append("name", selectedtag.name);
+        formData.append("role", selectedtag.role);
+
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            console.log("Request sent successfully");
+            alert("Operation completed successfully");
+          } else {
+            console.error("Failed to send request");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred");
+        }
+      }
+
+      let selectedtag = { id: "", name: "", role: "" };
+
+      function populateTable() {
+        const tags = {
+          avb2ad32a: { name: "Tag 1", role: "Admin" },
+          a321fdsff: { name: "Tag 2", role: "User" },
+        };
+
+        const tableBodyMobile = document.getElementById("mobile-table-body");
+        Object.entries(tags).forEach(([id, tag]) => {
+          const row = document.createElement("tr");
+          row.id = id;
+          row.innerHTML = `
+      <td class="table-ele">${id}</td>
+      <td class="table-ele">${tag.name}</td>
+      <td class="table-ele">${tag.role}</td>`;
+          row.addEventListener("click", () => {
+            if (selectedRow === row) {
+              row.style.backgroundColor = "";
+              selectedtag["id"] = "";
+              selectedtag["name"] = "";
+              selectedtag["role"] = "";
+              selectedRow = null;
+            } else {
+              if (selectedRow) {
+                selectedRow.style.backgroundColor = "";
+              }
+              row.style.backgroundColor = "#2b2d38";
+              selectedtag["id"] = row.id;
+              selectedtag["name"] = tags[row.id]["name"];
+              selectedtag["role"] = tags[row.id]["role"];
+              selectedRow = row;
+            }
+          });
+
+          tableBodyMobile.appendChild(row);
+        });
+
+        const tableBody = document.getElementById("table-body");
+        let selectedRow = null;
+
+        Object.entries(tags).forEach(([id, tag]) => {
+          const row = document.createElement("tr");
+          row.id = id;
+          row.innerHTML = `
+      <td class="table-ele">${id}</td>
+      <td class="table-ele">${tag.name}</td>
+      <td class="table-ele">${tag.role}</td>`;
+          row.addEventListener("click", () => {
+            if (selectedRow === row) {
+              row.style.backgroundColor = "";
+              selectedtag["id"] = "";
+              selectedtag["name"] = "";
+              selectedtag["role"] = "";
+              selectedRow = null;
+            } else {
+              if (selectedRow) {
+                selectedRow.style.backgroundColor = "";
+              }
+              row.style.backgroundColor = "#2b2d38";
+              selectedtag["id"] = row.id;
+              selectedtag["name"] = tags[row.id]["name"];
+              selectedtag["role"] = tags[row.id]["role"];
+              selectedRow = row;
+            }
+          });
+
+          tableBody.appendChild(row);
+        });
+      }
 
       const desktopTabs = document.querySelectorAll(".desktop-layout .tab");
       const desktopContents = document.querySelectorAll(
@@ -727,6 +846,7 @@ void handleConfiguration() {
         });
       }
 
+      populateTable();
       setupTabs(desktopTabs, desktopContents);
       setupTabs(mobileTabs, mobileContents);
     </script>
@@ -736,35 +856,97 @@ void handleConfiguration() {
 )rawliteral";
 
     server.send(200, "text/html", html);
-  } else {
+  }
+  else
+  {
     server.sendHeader("Location", "/");
     server.send(302, "text/plain", "Redirecting to login...");
   }
 }
 
-// Function to handle logout
-void handleLogout() {
+void handleAdd()
+{
+  Serial.println("Add called!");
+  if (server.hasArg("id") && server.hasArg("name") && server.hasArg("role"))
+  {
+    String tag_id = server.arg("id");
+    String name = server.arg("name");
+    String role = server.arg("role");
+    Serial.println(tag_id);
+    Serial.println(name);
+    Serial.println(role);
+    server.send(200, "text/plain", "Tag added successfully");
+  }
+  else
+  {
+    server.send(400, "text/plain", "Invalid Request");
+  }
+}
+
+void handleDelete()
+{
+  Serial.println("Delete called!");
+  if (server.hasArg("id") && server.hasArg("name") && server.hasArg("role"))
+  {
+    String tag_id = server.arg("id");
+    String name = server.arg("name");
+    String role = server.arg("role");
+    Serial.println(tag_id);
+    Serial.println(name);
+    Serial.println(role);
+    server.send(200, "text/plain", "Tag deleted successfully");
+  }
+  else
+  {
+    server.send(400, "text/plain", "Invalid Request");
+  }
+}
+
+void handleEdit()
+{
+  Serial.println("Edit called!");
+  if (server.hasArg("id") && server.hasArg("name") && server.hasArg("role"))
+  {
+    String tag_id = server.arg("id");
+    String name = server.arg("name");
+    String role = server.arg("role");
+    Serial.println(tag_id);
+    Serial.println(name);
+    Serial.println(role);
+    server.send(200, "text/plain", "Tag edited successfully");
+  }
+  else
+  {
+    server.send(400, "text/plain", "Invalid Request");
+  }
+}
+
+void handleLogout()
+{
   isAuthenticated = false;
   server.sendHeader("Location", "/");
   server.send(302, "text/plain", "Redirecting to login...");
 }
 
-// Set up the web server
-void setup() {
+void setup()
+{
   Serial.begin(115200);
-  WiFi.softAP(ssid, password); 
+  WiFi.softAP(ssid, password);
   Serial.println("Access Point Created");
   Serial.println("IP Address: " + WiFi.softAPIP().toString());
 
-  server.on("/", handleRoot);                      
-  server.on("/login", HTTP_POST, handleLogin);    
-  server.on("/configuration", handleConfiguration);  
-  server.on("/logout", handleLogout);               
-
-  server.begin();  // Start the server
+  server.on("/", handleRoot);
+  server.on("/configuration", handleConfiguration);
+  server.on("/login", HTTP_POST, handleLogin);
+  server.on("/add", HTTP_POST, handleAdd);
+  server.on("/delete", HTTP_POST, handleDelete);
+  server.on("/edit", HTTP_POST, handleEdit);
+  server.on("/logout", handleLogout);
+  server.begin();
   Serial.println("Server started");
 }
 
-void loop() {
-  server.handleClient();  // Handle client requests
+void loop()
+{
+  server.handleClient();
 }

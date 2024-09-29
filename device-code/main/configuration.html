@@ -363,10 +363,10 @@
             <tbody id="table-body"></tbody>
           </table>
           <div class="rfid-buttons">
-            <button class="add-btn">Add Tag</button>
+            <button class="add-btn" id="add-tag">Add Tag</button>
             <div class="edit-delete">
-              <button class="edit-btn">Edit</button>
-              <button class="delete-btn">Delete</button>
+              <button class="edit-btn" id="edit-tag">Edit</button>
+              <button class="delete-btn" id="delete-tag">Delete</button>
             </div>
           </div>
         </div>
@@ -459,74 +459,148 @@
             <tbody id="mobile-table-body"></tbody>
           </table>
           <div class="rfid-buttons">
-            <button class="add-btn">Add Tag</button>
+            <button class="add-btn" id="add-tag-mobile">Add Tag</button>
             <div class="edit-delete">
-              <button class="edit-btn">Edit</button>
-              <button class="delete-btn">Delete</button>
+              <button class="edit-btn" id="edit-tag-mobile">Edit</button>
+              <button class="delete-btn" id="delete-tag-mobile">Delete</button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <script>
-      const tags = {
-        avb2ad32a: { name: "Tag 1", role: "Admin" },
-        a321fdsff: { name: "Tag 2", role: "User" },
-      };
-
-      const tableBodyMobile = document.getElementById("mobile-table-body");
-      Object.entries(tags).forEach(([id, tag]) => {
-        const row = document.createElement("tr");
-        row.id = id;
-        row.innerHTML = `
-    <td class="table-ele">${id}</td>
-    <td class="table-ele">${tag.name}</td>
-    <td class="table-ele">${tag.role}</td>`;
-        row.addEventListener("click", () => {
-          if (selectedRow === row) {
-            row.style.backgroundColor = "";
-            console.log(`Unselected: ${row.id}`);
-            selectedRow = null;
-          } else {
-            if (selectedRow) {
-              selectedRow.style.backgroundColor = "";
-            }
-            row.style.backgroundColor = "#2b2d38";
-            console.log(`Selected: ${row.id}`);
-            selectedRow = row;
-          }
-        });
-
-        tableBodyMobile.appendChild(row);
+      const addButton = document.getElementById("add-tag");
+      addButton.addEventListener("click", async function () {
+        sendRFIDRequest("/add");
       });
 
-      const tableBody = document.getElementById("table-body");
-      let selectedRow = null;
+      const deleteButton = document.getElementById("delete-tag");
+      deleteButton.addEventListener("click", async function () {
+        sendRFIDRequest("/delete");
+      });
 
-      Object.entries(tags).forEach(([id, tag]) => {
-        const row = document.createElement("tr");
-        row.id = id;
-        row.innerHTML = `
-    <td class="table-ele">${id}</td>
-    <td class="table-ele">${tag.name}</td>
-    <td class="table-ele">${tag.role}</td>`;
-        row.addEventListener("click", () => {
-          if (selectedRow === row) {
-            row.style.backgroundColor = "";
-            console.log(`Unselected: ${row.id}`);
-            selectedRow = null;
-          } else {
-            if (selectedRow) {
-              selectedRow.style.backgroundColor = "";
-            }
-            row.style.backgroundColor = "#2b2d38";
-            console.log(`Selected: ${row.id}`);
-            selectedRow = row;
+      const editButton = document.getElementById("edit-tag");
+      editButton.addEventListener("click", async function () {
+        sendRFIDRequest("/edit");
+      });
+
+      const addButtonMobile = document.getElementById("add-tag-mobile");
+      addButtonMobile.addEventListener("click", async function () {
+        sendRFIDRequest("/add");
+      });
+
+      const deleteButtonMobile = document.getElementById("delete-tag-mobile");
+      deleteButtonMobile.addEventListener("click", async function () {
+        sendRFIDRequest("/delete");
+      });
+
+      const editButtonMobile = document.getElementById("edit-tag-mobile");
+      editButtonMobile.addEventListener("click", async function () {
+        sendRFIDRequest("/edit");
+      });
+
+      async function sendRFIDRequest(url) {
+        if (url != "/add") {
+          if (!selectedtag.id) {
+            alert("Please select a tag first");
+            return;
           }
+        }
+
+        const formData = new FormData();
+        formData.append("id", selectedtag.id);
+        formData.append("name", selectedtag.name);
+        formData.append("role", selectedtag.role);
+
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            console.log("Request sent successfully");
+            alert("Operation completed successfully");
+          } else {
+            console.error("Failed to send request");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred");
+        }
+      }
+
+      let selectedtag = { id: "", name: "", role: "" };
+
+      function populateTable() {
+        const tags = {
+          avb2ad32a: { name: "Tag 1", role: "Admin" },
+          a321fdsff: { name: "Tag 2", role: "User" },
+        };
+
+        const tableBodyMobile = document.getElementById("mobile-table-body");
+        Object.entries(tags).forEach(([id, tag]) => {
+          const row = document.createElement("tr");
+          row.id = id;
+          row.innerHTML = `
+      <td class="table-ele">${id}</td>
+      <td class="table-ele">${tag.name}</td>
+      <td class="table-ele">${tag.role}</td>`;
+          row.addEventListener("click", () => {
+            if (selectedRow === row) {
+              row.style.backgroundColor = "";
+              selectedtag["id"] = "";
+              selectedtag["name"] = "";
+              selectedtag["role"] = "";
+              selectedRow = null;
+            } else {
+              if (selectedRow) {
+                selectedRow.style.backgroundColor = "";
+              }
+              row.style.backgroundColor = "#2b2d38";
+              selectedtag["id"] = row.id;
+              selectedtag["name"] = tags[row.id]["name"];
+              selectedtag["role"] = tags[row.id]["role"];
+              selectedRow = row;
+            }
+          });
+
+          tableBodyMobile.appendChild(row);
         });
 
-        tableBody.appendChild(row);
-      });
+        const tableBody = document.getElementById("table-body");
+        let selectedRow = null;
+
+        Object.entries(tags).forEach(([id, tag]) => {
+          const row = document.createElement("tr");
+          row.id = id;
+          row.innerHTML = `
+      <td class="table-ele">${id}</td>
+      <td class="table-ele">${tag.name}</td>
+      <td class="table-ele">${tag.role}</td>`;
+          row.addEventListener("click", () => {
+            if (selectedRow === row) {
+              row.style.backgroundColor = "";
+              selectedtag["id"] = "";
+              selectedtag["name"] = "";
+              selectedtag["role"] = "";
+              selectedRow = null;
+            } else {
+              if (selectedRow) {
+                selectedRow.style.backgroundColor = "";
+              }
+              row.style.backgroundColor = "#2b2d38";
+              selectedtag["id"] = row.id;
+              selectedtag["name"] = tags[row.id]["name"];
+              selectedtag["role"] = tags[row.id]["role"];
+              selectedRow = row;
+            }
+          });
+
+          tableBody.appendChild(row);
+        });
+      }
 
       const desktopTabs = document.querySelectorAll(".desktop-layout .tab");
       const desktopContents = document.querySelectorAll(
@@ -554,6 +628,7 @@
         });
       }
 
+      populateTable();
       setupTabs(desktopTabs, desktopContents);
       setupTabs(mobileTabs, mobileContents);
     </script>
