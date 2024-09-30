@@ -344,6 +344,130 @@
         background-color: #0056b3;
       }
 
+      .add-cancel-button {
+        background-color: #f44336;
+        color: white;
+        margin-right: 10px;
+      }
+
+      .add-cancel-button:hover {
+        background-color: #d32f2f;
+      }
+
+      .add-done-button {
+        background-color: rgb(4, 199, 4);
+        color: white;
+      }
+
+      .add-done-button:hover {
+        background-color: rgb(2, 157, 2);
+      }
+      .add-scan-button {
+        margin-top: 10px;
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(51, 51, 51, 0.9);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        opacity: 0;
+        visibility: hidden;
+        display: flex;
+        align-items: center;
+        max-width: 90%;
+        backdrop-filter: blur(5px);
+      }
+
+      .toast-icon {
+        margin-right: 12px;
+        font-size: 20px;
+      }
+
+      .toast-message {
+        font-family: "Arial", sans-serif;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      .toast-close {
+        margin-left: 12px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.2s ease;
+      }
+
+      .toast-close:hover {
+        opacity: 1;
+      }
+
+      @keyframes toast-in {
+        from {
+          transform: translateX(-50%) translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes toast-out {
+        from {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(-50%) translateY(100%);
+          opacity: 0;
+        }
+      }
+
+      .toast.animate-in {
+        animation: toast-in 0.3s ease forwards;
+      }
+
+      .toast.animate-out {
+        animation: toast-out 0.3s ease forwards;
+      }
+
+      @keyframes toast-in {
+        from {
+          transform: translateX(-50%) translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes toast-out {
+        from {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(-50%) translateY(100%);
+          opacity: 0;
+        }
+      }
+
+      .toast.animate-in {
+        animation: toast-in 0.3s ease forwards;
+      }
+
+      .toast.animate-out {
+        animation: toast-out 0.3s ease forwards;
+      }
+
       @media screen and (min-width: 601px) {
         .mobile-layout {
           display: none;
@@ -353,6 +477,10 @@
       @media screen and (max-width: 600px) {
         .desktop-layout {
           display: none;
+        }
+
+        .toast {
+          padding: 8px 8px;
         }
 
         .mobile-layout {
@@ -394,6 +522,7 @@
             <div class="input-group">
               <label for="ssid">SSID</label>
               <input
+                autocomplete="off"
                 type="text"
                 id="ssid"
                 name="ssid"
@@ -403,6 +532,7 @@
             <div class="input-group">
               <label for="wifi-password">Wi-Fi Password</label>
               <input
+                autocomplete="off"
                 type="password"
                 id="wifi-password"
                 name="wifi-password"
@@ -418,6 +548,7 @@
             <div class="input-group">
               <label for="user-id">User ID</label>
               <input
+                autocomplete="off"
                 type="text"
                 id="user-id"
                 name="user-id"
@@ -427,6 +558,7 @@
             <div class="input-group">
               <label for="user-password">User Password</label>
               <input
+                autocomplete="off"
                 type="password"
                 id="user-password"
                 name="user-password"
@@ -441,6 +573,7 @@
             <div class="input-group">
               <label for="ap-ssid">AP SSID</label>
               <input
+                autocomplete="off"
                 type="text"
                 id="ap-ssid"
                 name="ap-ssid"
@@ -450,6 +583,7 @@
             <div class="input-group">
               <label for="ap-password">AP Password</label>
               <input
+                autocomplete="off"
                 type="password"
                 id="ap-password"
                 name="ap-password"
@@ -488,6 +622,7 @@
             <div class="input-group">
               <label for="mobile-ssid">SSID</label>
               <input
+                autocomplete="off"
                 type="text"
                 id="mobile-ssid"
                 name="ssid"
@@ -497,6 +632,7 @@
             <div class="input-group">
               <label for="mobile-wifi-password">Wi-Fi Password</label>
               <input
+                autocomplete="off"
                 type="password"
                 id="mobile-wifi-password"
                 name="wifi-password"
@@ -513,6 +649,7 @@
             <div class="input-group">
               <label for="mobile-user-id">User ID</label>
               <input
+                autocomplete="off"
                 type="text"
                 id="mobile-user-id"
                 name="user-id"
@@ -522,6 +659,7 @@
             <div class="input-group">
               <label for="mobile-user-password">User Password</label>
               <input
+                autocomplete="off"
                 type="password"
                 id="mobile-user-password"
                 name="user-password"
@@ -536,6 +674,7 @@
             <div class="input-group">
               <label for="ap-ssid">AP SSID</label>
               <input
+                autocomplete="off"
                 type="text"
                 id="ap-ssid"
                 name="ap-ssid"
@@ -545,6 +684,7 @@
             <div class="input-group">
               <label for="ap-password">AP Password</label>
               <input
+                autocomplete="off"
                 type="password"
                 id="ap-password"
                 name="ap-password"
@@ -580,40 +720,75 @@
     <div id="modal" class="modal-overlay">
       <div class="modal-content" id="modal-main-content"></div>
     </div>
+    <div class="toast" id="toast"></div>
+
     <script>
       let selectedtag = { id: "", name: "", role: "" };
+
+      const toast = document.getElementById("toast");
       const modalContent = document.getElementById("modal-main-content");
       const modal = document.getElementById("modal");
 
       const addButton = document.getElementById("add-tag");
       addButton.addEventListener("click", async function () {
+        modalContent.innerHTML = `
+            <h2 class="modal-title">Add Item</h2>
+                    <div class="edit-modal-form-group">
+                          <label for="addId">ID</label>
+                          <input autocomplete="off" type="text" id="addId" name="name" placeholder="Scan a tag" required disabled>
+                          <button type="button" id="scanButton" class="add-scan-button">Scan</button>
+                      </div>
+                    <div class="edit-modal-form-group">
+                          <label for="editName">Name</label>
+                          <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
+                      </div>
+                      <div class="edit-modal-form-group">
+                          <label for="editRole">Role</label>
+                          <select id="editRole" name="role">
+                              <option value="admin">Admin</option>
+                              <option value="user">User</option>
+                          </select>
+                      </div>
+              <div class="modal-buttons">
+                <button class="modal-button add-cancel-button" onclick="closeModal()">
+                  Cancel
+                </button>
+                <button
+                  class="modal-button add-done-button"
+                  onclick="confirmAdding()"
+                >
+                  Done
+                </button>
+              </div>
+            `;
+        modal.style.display = "flex";
         //sendRFIDRequest("/add");
       });
 
       const deleteButton = document.getElementById("delete-tag");
       deleteButton.addEventListener("click", async function () {
         if (!selectedtag.id) {
-          alert("Please select a tag first");
+          showToast("Please select a tag first");
           return;
         }
         modalContent.innerHTML = `
-      <h2 class="modal-title">Delete Item</h2>
-        <p class="modal-description">
-          Are you sure you want to delete tag with ID:${selectedtag.id}? This action
-          cannot be undone.
-        </p>
-        <div class="modal-buttons">
-          <button class="modal-button cancel-button" onclick="closeModal()">
-            Cancel
-          </button>
-          <button
-            class="modal-button delete-button"
-            onclick="confirmDeletion()"
-          >
-            Delete
-          </button>
-        </div>
-      `;
+            <h2 class="modal-title">Delete Item</h2>
+              <p class="modal-description">
+                Are you sure you want to delete tag with ID:${selectedtag.id}? This action
+                cannot be undone.
+              </p>
+              <div class="modal-buttons">
+                <button class="modal-button cancel-button" onclick="closeModal()">
+                  Cancel
+                </button>
+                <button
+                  class="modal-button delete-button"
+                  onclick="confirmDeletion()"
+                >
+                  Delete
+                </button>
+              </div>
+            `;
         modal.style.display = "flex";
         //sendRFIDRequest("/delete");
       });
@@ -621,29 +796,29 @@
       const editButton = document.getElementById("edit-tag");
       editButton.addEventListener("click", async function () {
         if (!selectedtag.id) {
-          alert("Please select a tag first");
+          showToast("Please select a tag first");
           return;
         }
         modalContent.innerHTML = `
-      <h2 class="modal-title">Edit Item</h2>
-      <form action="/edit" method="POST">
-                <div class="edit-modal-form-group">
-                    <label for="editName">Name</label>
-                    <input type="text" id="editName" name="name" placeholder="Enter name" required>
-                </div>
-                <div class="edit-modal-form-group">
-                    <label for="editRole">Role</label>
-                    <select id="editRole" name="role">
-                        <option value="admin">Admin</option>
-                        <option value="user">User</option>
-                    </select>
-                </div>
-                <div class="edit-modal-actions">
-                    <button type="button" onclick="closeModal()" >Cancel</button>
-                    <button type="submit">Save Changes</button>
-                </div>
-            </form>
-      `;
+            <h2 class="modal-title">Edit Item</h2>
+            <form action="/edit" method="POST">
+                      <div class="edit-modal-form-group">
+                          <label for="editName">Name</label>
+                          <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
+                      </div>
+                      <div class="edit-modal-form-group">
+                          <label for="editRole">Role</label>
+                          <select id="editRole" name="role">
+                              <option value="admin">Admin</option>
+                              <option value="user">User</option>
+                          </select>
+                      </div>
+                      <div class="edit-modal-actions">
+                          <button type="button" onclick="closeModal()" >Cancel</button>
+                          <button type="submit">Save Changes</button>
+                      </div>
+                  </form>
+            `;
         let name = document.getElementById("editName");
         let role = document.getElementById("editRole");
         name.value = selectedtag.name;
@@ -654,62 +829,93 @@
 
       const addButtonMobile = document.getElementById("add-tag-mobile");
       addButtonMobile.addEventListener("click", async function () {
+        modalContent.innerHTML = `
+            <h2 class="modal-title">Add Item</h2>
+                    <div class="edit-modal-form-group">
+                          <label for="addId">ID</label>
+                          <input autocomplete="off" type="text" id="addId" name="name" placeholder="Scan a tag" required disabled>
+                          <button type="button" id="scanButton" class="add-scan-button">Scan</button>
+                      </div>
+                    <div class="edit-modal-form-group">
+                          <label for="editName">Name</label>
+                          <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
+                      </div>
+                      <div class="edit-modal-form-group">
+                          <label for="editRole">Role</label>
+                          <select id="editRole" name="role">
+                              <option value="admin">Admin</option>
+                              <option value="user">User</option>
+                          </select>
+                      </div>
+              <div class="modal-buttons">
+                <button class="modal-button add-cancel-button" onclick="closeModal()">
+                  Cancel
+                </button>
+                <button
+                  class="modal-button add-done-button"
+                  onclick="confirmAdding()"
+                >
+                  Done
+                </button>
+              </div>
+            `;
+        modal.style.display = "flex";
         //sendRFIDRequest("/add");
       });
 
       const deleteButtonMobile = document.getElementById("delete-tag-mobile");
       deleteButtonMobile.addEventListener("click", async function () {
         if (!selectedtag.id) {
-          alert("Please select a tag first");
+          showToast("Please select a tag first");
           return;
         }
         modalContent.innerHTML = `
-      <h2 class="modal-title">Delete Item</h2>
-        <p class="modal-description">
-          Are you sure you want to delete tag with ID:${selectedtag.id}? This action
-          cannot be undone.
-        </p>
-        <div class="modal-buttons">
-          <button class="modal-button cancel-button" onclick="closeModal()">
-            Cancel
-          </button>
-          <button
-            class="modal-button delete-button"
-            onclick="confirmDeletion()"
-          >
-            Delete
-          </button>
-        </div>
-      `;
+            <h2 class="modal-title">Delete Item</h2>
+              <p class="modal-description">
+                Are you sure you want to delete tag with ID:${selectedtag.id}? This action
+                cannot be undone.
+              </p>
+              <div class="modal-buttons">
+                <button class="modal-button cancel-button" onclick="closeModal()">
+                  Cancel
+                </button>
+                <button
+                  class="modal-button delete-button"
+                  onclick="confirmDeletion()"
+                >
+                  Delete
+                </button>
+              </div>
+            `;
         modal.style.display = "flex";
         //sendRFIDRequest("/delete");
       });
       const editButtonMobile = document.getElementById("edit-tag-mobile");
       editButtonMobile.addEventListener("click", async function () {
         if (!selectedtag.id) {
-          alert("Please select a tag first");
+          showToast("Please select a tag first");
           return;
         }
         modalContent.innerHTML = `
-      <h2 class="modal-title">Edit Item</h2>
-      <form action="/edit" method="POST">
-                <div class="edit-modal-form-group">
-                    <label for="editName">Name</label>
-                    <input type="text" id="editName" name="name" placeholder="Enter name" required>
-                </div>
-                <div class="edit-modal-form-group">
-                    <label for="editRole">Role</label>
-                    <select id="editRole" name="role">
-                        <option value="admin">Admin</option>
-                        <option value="user">User</option>
-                    </select>
-                </div>
-                <div class="edit-modal-actions">
-                    <button type="button" onclick="closeModal()" >Cancel</button>
-                    <button type="submit">Save Changes</button>
-                </div>
-            </form>
-      `;
+            <h2 class="modal-title">Edit Item</h2>
+            <form action="/edit" method="POST">
+                      <div class="edit-modal-form-group">
+                          <label for="editName">Name</label>
+                          <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
+                      </div>
+                      <div class="edit-modal-form-group">
+                          <label for="editRole">Role</label>
+                          <select id="editRole" name="role">
+                              <option value="admin">Admin</option>
+                              <option value="user">User</option>
+                          </select>
+                      </div>
+                      <div class="edit-modal-actions">
+                          <button type="button" onclick="closeModal()" >Cancel</button>
+                          <button type="submit">Save Changes</button>
+                      </div>
+                  </form>
+            `;
         let name = document.getElementById("editName");
         let role = document.getElementById("editRole");
         name.value = selectedtag.name;
@@ -755,9 +961,9 @@
           const row = document.createElement("tr");
           row.id = id;
           row.innerHTML = `
-      <td class="table-ele">${id}</td>
-      <td class="table-ele">${tag.name}</td>
-      <td class="table-ele">${tag.role}</td>`;
+            <td class="table-ele">${id}</td>
+            <td class="table-ele">${tag.name}</td>
+            <td class="table-ele">${tag.role}</td>`;
           row.addEventListener("click", () => {
             if (selectedRow === row) {
               row.style.backgroundColor = "";
@@ -787,9 +993,9 @@
           const row = document.createElement("tr");
           row.id = id;
           row.innerHTML = `
-      <td class="table-ele">${id}</td>
-      <td class="table-ele">${tag.name}</td>
-      <td class="table-ele">${tag.role}</td>`;
+            <td class="table-ele">${id}</td>
+            <td class="table-ele">${tag.name}</td>
+            <td class="table-ele">${tag.role}</td>`;
           row.addEventListener("click", () => {
             if (selectedRow === row) {
               row.style.backgroundColor = "";
@@ -825,6 +1031,22 @@
       function closeModal() {
         modal.style.display = "none";
         modalContent.innerHTML = "<h2>No valid button clicked.<h2/>";
+      }
+
+      function closeToast() {
+        toast.style.visibility = "hidden";
+        toast.style.opacity = "0";
+      }
+
+      function showToast(message) {
+        toast.innerHTML = `
+              <span class="toast-icon"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="25" height="25" viewBox="0 0 48 48">
+      <path fill="#2196f3" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"></path><path fill="#fff" d="M22 22h4v11h-4V22zM26.5 16.5c0 1.379-1.121 2.5-2.5 2.5s-2.5-1.121-2.5-2.5S22.621 14 24 14 26.5 15.121 26.5 16.5z"></path>
+      </svg></span>
+            <span class="toast-message" id="toast-message">${message}</span>`;
+        toast.style.visibility = "visible";
+        toast.style.opacity = "1";
+        setTimeout(closeToast, 5000);
       }
 
       function setupTabs(tabs, contents) {
