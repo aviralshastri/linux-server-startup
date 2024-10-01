@@ -518,80 +518,74 @@
         </div>
         <div class="content active" id="tab1">
           <h2>Wi-Fi Configuration</h2>
-          <form>
-            <div class="input-group">
-              <label for="ssid">SSID</label>
-              <input
-                autocomplete="off"
-                type="text"
-                id="ssid"
-                name="ssid"
-                placeholder="Enter your Wi-Fi SSID"
-              />
-            </div>
-            <div class="input-group">
-              <label for="wifi-password">Wi-Fi Password</label>
-              <input
-                autocomplete="off"
-                type="password"
-                id="wifi-password"
-                name="wifi-password"
-                placeholder="Enter your Wi-Fi password"
-              />
-            </div>
-            <button type="submit">Save Wi-Fi Settings</button>
-          </form>
+          <div class="input-group">
+            <label for="wifi-ssid">SSID</label>
+            <input
+              autocomplete="off"
+              type="text"
+              id="wifi-ssid"
+              name="wifi-ssid"
+              placeholder="Enter your Wi-Fi SSID"
+            />
+          </div>
+          <div class="input-group">
+            <label for="wifi-password">Wi-Fi Password</label>
+            <input
+              autocomplete="off"
+              type="password"
+              id="wifi-password"
+              name="wifi-password"
+              placeholder="Enter your Wi-Fi password"
+            />
+          </div>
+          <button class="saveWifiConfig">Save Wi-Fi Settings</button>
         </div>
         <div class="content" id="tab2">
           <h2>User Configuration</h2>
-          <form>
-            <div class="input-group">
-              <label for="user-id">User ID</label>
-              <input
-                autocomplete="off"
-                type="text"
-                id="user-id"
-                name="user-id"
-                placeholder="Enter your User ID"
-              />
-            </div>
-            <div class="input-group">
-              <label for="user-password">User Password</label>
-              <input
-                autocomplete="off"
-                type="password"
-                id="user-password"
-                name="user-password"
-                placeholder="Enter your User password"
-              />
-            </div>
-            <button type="submit">Save User Configuration</button>
-          </form>
+          <div class="input-group">
+            <label for="user-id">User ID</label>
+            <input
+              autocomplete="off"
+              type="text"
+              id="user-id"
+              name="user-id"
+              placeholder="Enter your User ID"
+            />
+          </div>
+          <div class="input-group">
+            <label for="user-password">User Password</label>
+            <input
+              autocomplete="off"
+              type="password"
+              id="user-password"
+              name="user-password"
+              placeholder="Enter your User password"
+            />
+          </div>
+          <button class="saveUserConfig">Save User Configuration</button>
           <div class="divider"></div>
           <h2 style="margin-top: 30px">Access-Point Configuration</h2>
-          <form>
-            <div class="input-group">
-              <label for="ap-ssid">AP SSID</label>
-              <input
-                autocomplete="off"
-                type="text"
-                id="ap-ssid"
-                name="ap-ssid"
-                placeholder="Enter AP SSID"
-              />
-            </div>
-            <div class="input-group">
-              <label for="ap-password">AP Password</label>
-              <input
-                autocomplete="off"
-                type="password"
-                id="ap-password"
-                name="ap-password"
-                placeholder="Enter AP password"
-              />
-            </div>
-            <button type="submit">Save AP Configuration</button>
-          </form>
+          <div class="input-group">
+            <label for="ap-ssid">AP SSID</label>
+            <input
+              autocomplete="off"
+              type="text"
+              id="ap-ssid"
+              name="ap-ssid"
+              placeholder="Enter AP SSID"
+            />
+          </div>
+          <div class="input-group">
+            <label for="ap-password">AP Password</label>
+            <input
+              autocomplete="off"
+              type="password"
+              id="ap-password"
+              name="ap-password"
+              placeholder="Enter AP password"
+            />
+          </div>
+          <button class="saveAPConfig">Save AP Configuration</button>
         </div>
         <div class="content" id="tab3">
           <h2>RFID Configuration</h2>
@@ -618,81 +612,75 @@
         <div class="tab active" data-tab="tab1">Wi-Fi Configuration</div>
         <div class="content" id="mobile-tab1">
           <h2>Wi-Fi Configuration</h2>
-          <form>
-            <div class="input-group">
-              <label for="mobile-ssid">SSID</label>
-              <input
-                autocomplete="off"
-                type="text"
-                id="mobile-ssid"
-                name="ssid"
-                placeholder="Enter your Wi-Fi SSID"
-              />
-            </div>
-            <div class="input-group">
-              <label for="mobile-wifi-password">Wi-Fi Password</label>
-              <input
-                autocomplete="off"
-                type="password"
-                id="mobile-wifi-password"
-                name="wifi-password"
-                placeholder="Enter your Wi-Fi password"
-              />
-            </div>
-            <button type="submit">Save Wi-Fi Settings</button>
-          </form>
+          <div class="input-group">
+            <label for="mobile-wifi-ssid">SSID</label>
+            <input
+              autocomplete="off"
+              type="text"
+              id="mobile-wifi-ssid"
+              name="wifi-ssid"
+              placeholder="Enter your Wi-Fi SSID"
+            />
+          </div>
+          <div class="input-group">
+            <label for="mobile-wifi-password">Wi-Fi Password</label>
+            <input
+              autocomplete="off"
+              type="password"
+              id="mobile-wifi-password"
+              name="wifi-password"
+              placeholder="Enter your Wi-Fi password"
+            />
+          </div>
+          <button class="saveWifiConfig">Save Wi-Fi Settings</button>
         </div>
         <div class="tab" data-tab="tab2">User Configuration</div>
         <div class="content" id="mobile-tab2">
           <h2>User Configuration</h2>
-          <form>
-            <div class="input-group">
-              <label for="mobile-user-id">User ID</label>
-              <input
-                autocomplete="off"
-                type="text"
-                id="mobile-user-id"
-                name="user-id"
-                placeholder="Enter your User ID"
-              />
-            </div>
-            <div class="input-group">
-              <label for="mobile-user-password">User Password</label>
-              <input
-                autocomplete="off"
-                type="password"
-                id="mobile-user-password"
-                name="user-password"
-                placeholder="Enter your User password"
-              />
-            </div>
-            <button type="submit">Save User Info</button>
-          </form>
+          <div class="input-group">
+            <label for="mobile-user-id">User ID</label>
+            <input
+              autocomplete="off"
+              type="text"
+              id="mobile-user-id"
+              name="user-id"
+              placeholder="Enter your User ID"
+            />
+          </div>
+          <div class="input-group">
+            <label for="mobile-user-password">User Password</label>
+            <input
+              autocomplete="off"
+              type="password"
+              id="mobile-user-password"
+              name="user-password"
+              placeholder="Enter your User password"
+            />
+          </div>
+          <button class="saveUserConfig">Save User Configuration</button>
           <div class="divider"></div>
           <h2>Access-Point Configuration</h2>
-          <form>
-            <div class="input-group">
-              <label for="ap-ssid">AP SSID</label>
-              <input
-                autocomplete="off"
-                type="text"
-                id="ap-ssid"
-                name="ap-ssid"
-                placeholder="Enter AP SSID"
-              />
-            </div>
-            <div class="input-group">
-              <label for="ap-password">AP Password</label>
-              <input
-                autocomplete="off"
-                type="password"
-                id="ap-password"
-                name="ap-password"
-                placeholder="Enter AP password"
-              />
-            </div>
-            <button type="submit">Save AP Configuration</button>
-          </form>
+          <div class="input-group">
+            <label for="mobile-ap-ssid">AP SSID</label>
+            <input
+              autocomplete="off"
+              type="text"
+              id="mobile-ap-ssid"
+              name="ap-ssid"
+              placeholder="Enter AP SSID"
+            />
+          </div>
+          <div class="input-group">
+            <label for="mobile-ap-password">AP Password</label>
+            <input
+              autocomplete="off"
+              type="password"
+              id="mobile-ap-password"
+              name="ap-password"
+              placeholder="Enter AP password"
+            />
+          </div>
+          <button class="saveAPConfig">Save AP Configuration</button>
         </div>
         <div class="tab" data-tab="tab3">RFID Configuration</div>
         <div class="content" id="mobile-tab3">
@@ -723,8 +711,10 @@
     <div class="toast" id="toast"></div>
 
     <script>
-      let selectedtag = { id: "", name: "", role: "" };
+      const invalidIDChars = /[^a-zA-Z0-9 _]/;
+      const invalidPasswordChars = /['"]/;
 
+      let selectedtag = { id: "", name: "", role: "" };
       const toast = document.getElementById("toast");
       const modalContent = document.getElementById("modal-main-content");
       const modal = document.getElementById("modal");
@@ -1027,6 +1017,112 @@
       const mobileContents = document.querySelectorAll(
         ".mobile-layout .content"
       );
+
+      const saveUserConfigs = document.querySelectorAll(".saveUserConfig");
+      saveUserConfigs.forEach((saveUserConfig) => {
+        saveUserConfig.addEventListener("click", handleSaveUserConfig);
+      });
+      const saveAPConfigs = document.querySelectorAll(".saveAPConfig");
+      saveAPConfigs.forEach((saveAPConfig) => {
+        saveAPConfig.addEventListener("click", handleSaveAPConfig);
+      });
+      const saveWifiConfigs = document.querySelectorAll(".saveWifiConfig");
+      saveWifiConfigs.forEach((saveWifiConfig) => {
+        saveWifiConfig.addEventListener("click", handleSaveWifiConfig);
+      });
+
+      function handleSaveUserConfig() {
+        const userid =
+          document.getElementById("user-id").value === ""
+            ? document.getElementById("mobile-user-id").value
+            : document.getElementById("user-id").value;
+        const userpassword =
+          document.getElementById("user-password").value === ""
+            ? document.getElementById("mobile-user-password").value
+            : document.getElementById("user-password").value;
+
+        if (userid === "") {
+          showToast("User ID cannot be empty");
+          return;
+        }
+        if (userpassword === "") {
+          showToast("User Password cannot be empty");
+          return;
+        }
+
+        if (invalidIDChars.test(userid)) {
+          showToast(
+            "User ID contains invalid characters! (allowed special characters: underscore and space)"
+          );
+          return;
+        }
+        if (invalidPasswordChars.test(userpassword)) {
+          showToast("User Password contains invalid characters: \" , '");
+          return;
+        }
+      }
+
+      function handleSaveAPConfig() {
+        const apssid =
+          document.getElementById("ap-ssid").value === ""
+            ? document.getElementById("mobile-ap-ssid").value
+            : document.getElementById("ap-ssid").value;
+        const appassword =
+          document.getElementById("ap-password").value === ""
+            ? document.getElementById("mobile-ap-password").value
+            : document.getElementById("ap-password").value;
+
+        if (apssid === "") {
+          showToast("AP SSID cannot be empty");
+          return;
+        }
+        if (appassword === "") {
+          showToast("AP Password cannot be empty");
+          return;
+        }
+
+        if (invalidIDChars.test(apssid)) {
+          showToast(
+            "AP SSID contains invalid characters! (allowed special characters: underscore and space)"
+          );
+          return;
+        }
+        if (invalidPasswordChars.test(appassword)) {
+          showToast("AP Password contains invalid characters: \" , '");
+          return;
+        }
+      }
+
+      function handleSaveWifiConfig() {
+        const wifissid =
+          document.getElementById("wifi-ssid").value === ""
+            ? document.getElementById("mobile-wifi-ssid").value
+            : document.getElementById("wifi-ssid").value;
+        const wifipassword =
+          document.getElementById("wifi-password").value === ""
+            ? document.getElementById("mobile-wifi-password").value
+            : document.getElementById("wifi-password").value;
+
+        if (wifissid === "") {
+          showToast("Wifi SSID cannot be empty");
+          return;
+        }
+        if (wifipassword === "") {
+          showToast("Wifi Password cannot be empty");
+          return;
+        }
+
+        if (invalidIDChars.test(wifissid)) {
+          showToast(
+            "Wifi SSID contains invalid characters! (allowed special characters: underscore and space)"
+          );
+          return;
+        }
+        if (invalidPasswordChars.test(wifipassword)) {
+          showToast("Wifi Password contains invalid characters: \" , '");
+          return;
+        }
+      }
 
       function closeModal() {
         modal.style.display = "none";

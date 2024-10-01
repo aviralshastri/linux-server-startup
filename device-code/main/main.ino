@@ -188,6 +188,10 @@ void handleRoot()
 
 void handleLogin()
 {
+  if (!isAuthenticated)
+  {
+    return;
+  }
   if (server.hasArg("userid") && server.hasArg("password"))
   {
     String user = server.arg("userid");
@@ -866,6 +870,10 @@ void handleConfiguration()
 
 void handleAdd()
 {
+  if (!isAuthenticated)
+  {
+    return;
+  }
   Serial.println("Add called!");
   if (server.hasArg("id") && server.hasArg("name") && server.hasArg("role"))
   {
@@ -885,6 +893,10 @@ void handleAdd()
 
 void handleDelete()
 {
+  if (!isAuthenticated)
+  {
+    return;
+  }
   Serial.println("Delete called!");
   if (server.hasArg("id") && server.hasArg("name") && server.hasArg("role"))
   {
@@ -904,6 +916,10 @@ void handleDelete()
 
 void handleEdit()
 {
+  if (!isAuthenticated)
+  {
+    return;
+  }
   Serial.println("Edit called!");
   if (server.hasArg("id") && server.hasArg("name") && server.hasArg("role"))
   {
@@ -938,10 +954,13 @@ void setup()
   server.on("/", handleRoot);
   server.on("/configuration", handleConfiguration);
   server.on("/login", HTTP_POST, handleLogin);
+  server.on("/logout", handleLogout);
+  server.on("/saveUserConfig", HTTP_POST, handleSaverUserConfig);
+  server.on("/saveAPConfig", HTTP_POST, handleSaverAPConfig);
+  server.on("/saveWifiConfig", HTTP_POST, handleSaverWifiConfig);
   server.on("/add", HTTP_POST, handleAdd);
   server.on("/delete", HTTP_POST, handleDelete);
   server.on("/edit", HTTP_POST, handleEdit);
-  server.on("/logout", handleLogout);
   server.begin();
   Serial.println("Server started");
 }
