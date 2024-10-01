@@ -1018,6 +1018,41 @@
         ".mobile-layout .content"
       );
 
+      async function sendConfigRequest(url, id, password) {
+        const formData = new FormData();
+        if (url === "/saveWifiConfig") {
+          formData.append("wifissid", id);
+          formData.append("wifipassword", password);
+        } else if (url === "/saveUserConfig") {
+          formData.append("userid", id);
+          formData.append("userpassword", password);
+        } else if (url === "/saveAPConfig") {
+          formData.append("apid", id);
+          formData.append("appassword", password);
+        } else {
+          showToast("Invalid config path!");
+          return;
+        }
+
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            console.log("Request sent successfully");
+            alert("Operation completed successfully");
+          } else {
+            console.error("Failed to send request");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred");
+        }
+      }
+
       const saveUserConfigs = document.querySelectorAll(".saveUserConfig");
       saveUserConfigs.forEach((saveUserConfig) => {
         saveUserConfig.addEventListener("click", handleSaveUserConfig);
@@ -1060,6 +1095,8 @@
           showToast("User Password contains invalid characters: \" , '");
           return;
         }
+
+        sendConfigRequest("/saveUserConfig", userid, userpassword);
       }
 
       function handleSaveAPConfig() {
@@ -1091,6 +1128,8 @@
           showToast("AP Password contains invalid characters: \" , '");
           return;
         }
+
+        sendConfigRequest("/saveAPConfig", apssid, appassword);
       }
 
       function handleSaveWifiConfig() {
@@ -1122,6 +1161,8 @@
           showToast("Wifi Password contains invalid characters: \" , '");
           return;
         }
+
+        sendConfigRequest("/saveWifiConfig", wifissid, wifipassword);
       }
 
       function closeModal() {
