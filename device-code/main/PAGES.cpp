@@ -1,3 +1,176 @@
+#include "PAGES.h"
+
+const char* PAGES::login = R"rawliteral(
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login-Server Control</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background: linear-gradient(45deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+        }
+
+        h2 {
+            color: #ffffff;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            color: #a0a0a0;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        button {
+            width: 100%;
+            background: rgb(0, 93, 222);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background: rgb(0, 74, 192);
+        }
+
+        .rfid-login {
+            display: block;
+            width: 100%;
+            background: rgb(0, 93, 222);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .rfid-login:hover {
+            background: rgb(0, 74, 192);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1rem 0;
+            color: #a0a0a0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .divider::before {
+            margin-right: .5em;
+        }
+
+        .divider::after {
+            margin-left: .5em;
+        }
+        .p-text{
+            font-size: 0.9rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h2>Login</h2>
+            <p class="p-text">(only autherized devide can access the dashboard)</p>
+            <form method="POST" action="/login">
+                <div class="input-group">
+                    <label for="userid">Username</label>
+                    <input type="text" id="userid" name="userid" placeholder="Enter your userid">
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password">
+                </div>
+                <button type="submit">Sign In</button>
+            </form>
+            <div class="divider">or</div>
+            <button class="rfid-login">Login with RFID</button>
+        </div>
+    </div>
+</body>
+</html>
+)rawliteral";
+
+const char* PAGES::main =R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -711,7 +884,7 @@
     <div class="toast" id="toast"></div>
 
     <script>
-      const invalidIDChars = /[^a-zA-Z0-9 _-]/;
+      const invalidIDChars = /[^a-zA-Z0-9 _]/;
       const invalidPasswordChars = /['"]/;
 
       let selectedtag = { id: "", name: "", role: "" };
@@ -1087,7 +1260,7 @@
 
         if (invalidIDChars.test(userid)) {
           showToast(
-            "User ID contains invalid characters! (allowed special characters: underscore, hyphen and space)"
+            "User ID contains invalid characters! (allowed special characters: underscore and space)"
           );
           return;
         }
@@ -1120,7 +1293,7 @@
 
         if (invalidIDChars.test(apssid)) {
           showToast(
-            "AP SSID contains invalid characters! (allowed special characters: underscore, hyphen and space)"
+            "AP SSID contains invalid characters! (allowed special characters: underscore and space)"
           );
           return;
         }
@@ -1153,7 +1326,7 @@
 
         if (invalidIDChars.test(wifissid)) {
           showToast(
-            "Wifi SSID contains invalid characters! (allowed special characters: underscore, hyphen and space)"
+            "Wifi SSID contains invalid characters! (allowed special characters: underscore and space)"
           );
           return;
         }
@@ -1208,4 +1381,4 @@
       setupTabs(mobileTabs, mobileContents);
     </script>
   </body>
-</html>
+</html>)rawliteral";

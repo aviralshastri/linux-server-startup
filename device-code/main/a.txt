@@ -7,8 +7,8 @@ GENERALS generals;
 
 String ssid = "ESP32-SERVER-CONTROLLER";
 String password = generals.getUniqueId();
-String loginId = "admin";
-String loginPassword = "admin";
+String loginId = generals.read_settings_keys("UI");
+String loginPassword = generals.read_settings_keys("UP");
 
 WebServer server(80);
 
