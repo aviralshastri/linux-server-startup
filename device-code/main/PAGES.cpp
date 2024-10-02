@@ -170,7 +170,7 @@ const char* PAGES::login = R"rawliteral(
 </html>
 )rawliteral";
 
-const char* PAGES::main =R"rawliteral(
+const char* PAGES::main = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -884,7 +884,7 @@ const char* PAGES::main =R"rawliteral(
     <div class="toast" id="toast"></div>
 
     <script>
-      const invalidIDChars = /[^a-zA-Z0-9 _]/;
+      const invalidIDChars = /[^a-zA-Z0-9 _-]/;
       const invalidPasswordChars = /['"]/;
 
       let selectedtag = { id: "", name: "", role: "" };
@@ -1113,74 +1113,74 @@ const char* PAGES::main =R"rawliteral(
         }
       }
 
-      function populateTable() {
-        const tags = {
-          avb2ad32a: { name: "Tag 1", role: "Admin" },
-          a321fdsff: { name: "Tag 2", role: "User" },
-        };
-
-        const tableBodyMobile = document.getElementById("mobile-table-body");
-        Object.entries(tags).forEach(([id, tag]) => {
-          const row = document.createElement("tr");
-          row.id = id;
-          row.innerHTML = `
-            <td class="table-ele">${id}</td>
-            <td class="table-ele">${tag.name}</td>
-            <td class="table-ele">${tag.role}</td>`;
-          row.addEventListener("click", () => {
-            if (selectedRow === row) {
-              row.style.backgroundColor = "";
-              selectedtag["id"] = "";
-              selectedtag["name"] = "";
-              selectedtag["role"] = "";
-              selectedRow = null;
-            } else {
-              if (selectedRow) {
-                selectedRow.style.backgroundColor = "";
-              }
-              row.style.backgroundColor = "#2b2d38";
-              selectedtag["id"] = row.id;
-              selectedtag["name"] = tags[row.id]["name"];
-              selectedtag["role"] = tags[row.id]["role"];
-              selectedRow = row;
-            }
+      async function fetchAndTransformTags() {
+        try {
+          const response = await fetch("/getAllTags", {
+            method: "GET",
           });
 
-          tableBodyMobile.appendChild(row);
-        });
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
 
+          const data = await response.json();
+          console.log("Received tags data:", data);
+          const transformedData = {};
+          data.forEach((tag) => {
+            transformedData[tag.id] = {
+              name: tag.info.name,
+              role: tag.info.role,
+            };
+          });
+
+          console.log("Transformed tags data:", transformedData);
+          return transformedData;
+        } catch (error) {
+          console.error("Error fetching tags:", error);
+          return {};
+        }
+      }
+
+      async function initializeTable() {
+        const tags = await fetchAndTransformTags();
+        populateTable(tags);
+      }
+
+      function populateTable(tags) {
+        const tableBodyMobile = document.getElementById("mobile-table-body");
         const tableBody = document.getElementById("table-body");
         let selectedRow = null;
 
-        Object.entries(tags).forEach(([id, tag]) => {
+        function createRow(id, tag) {
           const row = document.createElement("tr");
           row.id = id;
           row.innerHTML = `
-            <td class="table-ele">${id}</td>
-            <td class="table-ele">${tag.name}</td>
-            <td class="table-ele">${tag.role}</td>`;
+      <td class="table-ele">${id}</td>
+      <td class="table-ele">${tag.name}</td>
+      <td class="table-ele">${tag.role}</td>`;
           row.addEventListener("click", () => {
             if (selectedRow === row) {
               row.style.backgroundColor = "";
-              selectedtag["id"] = "";
-              selectedtag["name"] = "";
-              selectedtag["role"] = "";
+              selectedtag = { id: "", name: "", role: "" };
               selectedRow = null;
             } else {
               if (selectedRow) {
                 selectedRow.style.backgroundColor = "";
               }
               row.style.backgroundColor = "#2b2d38";
-              selectedtag["id"] = row.id;
-              selectedtag["name"] = tags[row.id]["name"];
-              selectedtag["role"] = tags[row.id]["role"];
+              selectedtag = { id: row.id, name: tag.name, role: tag.role };
               selectedRow = row;
             }
           });
+          return row;
+        }
 
-          tableBody.appendChild(row);
+        Object.entries(tags).forEach(([id, tag]) => {
+          tableBodyMobile.appendChild(createRow(id, tag));
+          tableBody.appendChild(createRow(id, tag));
         });
       }
+      initializeTable();
 
       const desktopTabs = document.querySelectorAll(".desktop-layout .tab");
       const desktopContents = document.querySelectorAll(
@@ -1260,7 +1260,7 @@ const char* PAGES::main =R"rawliteral(
 
         if (invalidIDChars.test(userid)) {
           showToast(
-            "User ID contains invalid characters! (allowed special characters: underscore and space)"
+            "User ID contains invalid characters! (allowed special characters: underscore, hyphen and space)"
           );
           return;
         }
@@ -1293,7 +1293,7 @@ const char* PAGES::main =R"rawliteral(
 
         if (invalidIDChars.test(apssid)) {
           showToast(
-            "AP SSID contains invalid characters! (allowed special characters: underscore and space)"
+            "AP SSID contains invalid characters! (allowed special characters: underscore, hyphen and space)"
           );
           return;
         }
@@ -1326,7 +1326,7 @@ const char* PAGES::main =R"rawliteral(
 
         if (invalidIDChars.test(wifissid)) {
           showToast(
-            "Wifi SSID contains invalid characters! (allowed special characters: underscore and space)"
+            "Wifi SSID contains invalid characters! (allowed special characters: underscore, hyphen and space)"
           );
           return;
         }
@@ -1376,9 +1376,10 @@ const char* PAGES::main =R"rawliteral(
         });
       }
 
-      populateTable();
       setupTabs(desktopTabs, desktopContents);
       setupTabs(mobileTabs, mobileContents);
     </script>
   </body>
-</html>)rawliteral";
+</html>
+
+)rawliteral";

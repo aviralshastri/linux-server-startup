@@ -41,6 +41,39 @@ void handleLogin() {
   }
 }
 
+void getAllTags() {
+  if (!isAuthenticated) {
+    server.send(401, "text/plain", "Unauthorized");
+    return;
+  }
+  Serial.println("Fetching all tags...");
+  String tags = generals.list_all_tags();
+  String jsonResponse = "[";
+  int startIndex = 0;
+  int endIndex;
+
+  while ((endIndex = tags.indexOf('\n', startIndex)) != -1) {
+    String tagEntry = tags.substring(startIndex, endIndex);
+    int colonIndex = tagEntry.indexOf(':');
+    if (colonIndex != -1) {
+      String id = tagEntry.substring(0, colonIndex);
+      String tagInfo = tagEntry.substring(colonIndex + 2);
+
+      jsonResponse += "{\"id\": \"" + id + "\", \"info\": " + tagInfo + "},";
+    }
+
+    startIndex = endIndex + 1;
+  }
+
+  if (jsonResponse.endsWith(",")) {
+    jsonResponse = jsonResponse.substring(0, jsonResponse.length() - 1);
+  }
+  jsonResponse += "]";
+  server.send(200, "application/json", jsonResponse);
+  Serial.println(jsonResponse);
+}
+
+
 void handleConfiguration() {
   if (isAuthenticated) {
     String html = PAGES::main;
@@ -180,6 +213,7 @@ void setup() {
   server.on("/saveUserConfig", HTTP_POST, handleSaveUserConfig);
   server.on("/saveAPConfig", HTTP_POST, handleSaveAPConfig);
   server.on("/saveWifiConfig", HTTP_POST, handleSaveWifiConfig);
+  server.on("/getAllTags", HTTP_GET, getAllTags);
   server.on("/add", HTTP_POST, handleAdd);
   server.on("/delete", HTTP_POST, handleDelete);
   server.on("/edit", HTTP_POST, handleEdit);
