@@ -206,11 +206,11 @@
       }
 
       .edit-btn {
-        background-color: #ebc404f0;
+        background: rgb(0, 97, 232);
       }
 
       .edit-btn:hover {
-        background-color: #ebc504ce;
+        background: rgba(1, 84, 201, 0.907);
       }
 
       .delete-btn {
@@ -715,9 +715,108 @@
       const invalidPasswordChars = /['"]/;
 
       let selectedtag = { id: "", name: "", role: "" };
+      let editedtag = { name: "", role: "" };
       const toast = document.getElementById("toast");
       const modalContent = document.getElementById("modal-main-content");
       const modal = document.getElementById("modal");
+
+      async function editButtonSendServer() {
+        let name = document.getElementById("editName").value;
+        let role = document.getElementById("editRole").value;
+        editedtag.name = name;
+        editedtag.role = role;
+
+        if (
+          typeof selectedtag.name != "string" &&
+          typeof selectedtag.id != "string" &&
+          typeof selectedtag.role != "string" &&
+          selectedtag.name != "" &&
+          selectedtag.id != "" &&
+          selectedtag.role != ""
+        ) {
+          return;
+        }
+
+        if (selectedtag.name)
+          if (
+            selectedtag.name === editedtag.name &&
+            selectedtag.role === editedtag.role
+          ) {
+            return;
+          }
+        const formData = new FormData();
+        formData.append("id", selectedtag.id);
+        formData.append(
+          "name",
+          selectedtag.name === name ? selectedtag.name : editedtag.name
+        );
+        formData.append(
+          "role",
+          selectedtag.role === editedtag.role
+            ? selectedtag.role
+            : editedtag.role
+        );
+        formData.append(
+          "tobechanged",
+          selectedtag.role !== editedtag.role &&
+            selectedtag.name !== editedtag.name
+            ? "both"
+            : selectedtag.role !== editedtag.role
+            ? "role"
+            : selectedtag.name !== editedtag.name
+            ? "name"
+            : ""
+        );
+        try {
+          const response = await fetch("/edit", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            console.log("Request sent successfully");
+            alert("Operation completed successfully");
+          } else {
+            console.error("Failed to send request");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred");
+        }
+      }
+
+      async function deleteButtonSendServer() {
+        if (
+          typeof selectedtag.name != "string" &&
+          typeof selectedtag.id != "string" &&
+          typeof selectedtag.role != "string" &&
+          selectedtag.name != "" &&
+          selectedtag.id != "" &&
+          selectedtag.role != ""
+        ) {
+          return;
+        }
+        const formData = new FormData();
+        formData.append("id", selectedtag.id);
+        try {
+          const response = await fetch("/delete", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            console.log("Request sent successfully");
+            alert("Operation completed successfully");
+          } else {
+            console.error("Failed to send request");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred");
+        }
+      }
 
       const addButton = document.getElementById("add-tag");
       addButton.addEventListener("click", async function () {
@@ -729,12 +828,12 @@
                           <button type="button" id="scanButton" class="add-scan-button">Scan</button>
                       </div>
                     <div class="edit-modal-form-group">
-                          <label for="editName">Name</label>
-                          <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
+                          <label for="addName">Name</label>
+                          <input autocomplete="off" type="text" id="addName" name="name" placeholder="Enter name" required>
                       </div>
                       <div class="edit-modal-form-group">
-                          <label for="editRole">Role</label>
-                          <select id="editRole" name="role">
+                          <label for="addRole">Role</label>
+                          <select id="addRole" name="role">
                               <option value="admin">Admin</option>
                               <option value="user">User</option>
                           </select>
@@ -773,14 +872,13 @@
                 </button>
                 <button
                   class="modal-button delete-button"
-                  onclick="confirmDeletion()"
+                  onclick="deleteButtonSendServer()"
                 >
                   Delete
                 </button>
               </div>
             `;
         modal.style.display = "flex";
-        //sendRFIDRequest("/delete");
       });
 
       const editButton = document.getElementById("edit-tag");
@@ -791,7 +889,7 @@
         }
         modalContent.innerHTML = `
             <h2 class="modal-title">Edit Item</h2>
-            <form action="/edit" method="POST">
+            <form>
                       <div class="edit-modal-form-group">
                           <label for="editName">Name</label>
                           <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
@@ -805,7 +903,7 @@
                       </div>
                       <div class="edit-modal-actions">
                           <button type="button" onclick="closeModal()" >Cancel</button>
-                          <button type="submit">Save Changes</button>
+                          <button type="button" onclick="editButtonSendServer()">Save Changes</button>
                       </div>
                   </form>
             `;
@@ -814,7 +912,6 @@
         name.value = selectedtag.name;
         role.value = selectedtag.role.toLowerCase();
         modal.style.display = "flex";
-        //sendRFIDRequest("/edit");
       });
 
       const addButtonMobile = document.getElementById("add-tag-mobile");
@@ -827,12 +924,12 @@
                           <button type="button" id="scanButton" class="add-scan-button">Scan</button>
                       </div>
                     <div class="edit-modal-form-group">
-                          <label for="editName">Name</label>
-                          <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
+                          <label for="addName">Name</label>
+                          <input autocomplete="off" type="text" id="addName" name="name" placeholder="Enter name" required>
                       </div>
                       <div class="edit-modal-form-group">
-                          <label for="editRole">Role</label>
-                          <select id="editRole" name="role">
+                          <label for="addRole">Role</label>
+                          <select id="addRole" name="role">
                               <option value="admin">Admin</option>
                               <option value="user">User</option>
                           </select>
@@ -850,7 +947,6 @@
               </div>
             `;
         modal.style.display = "flex";
-        //sendRFIDRequest("/add");
       });
 
       const deleteButtonMobile = document.getElementById("delete-tag-mobile");
@@ -871,24 +967,24 @@
                 </button>
                 <button
                   class="modal-button delete-button"
-                  onclick="confirmDeletion()"
+                  onclick="deleteButtonSendServer()"
                 >
                   Delete
                 </button>
               </div>
             `;
         modal.style.display = "flex";
-        //sendRFIDRequest("/delete");
       });
+
       const editButtonMobile = document.getElementById("edit-tag-mobile");
-      editButtonMobile.addEventListener("click", async function () {
+      editButtonMobile.addEventListener("click", function () {
         if (!selectedtag.id) {
           showToast("Please select a tag first");
           return;
         }
         modalContent.innerHTML = `
             <h2 class="modal-title">Edit Item</h2>
-            <form action="/edit" method="POST">
+            <form>
                       <div class="edit-modal-form-group">
                           <label for="editName">Name</label>
                           <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
@@ -902,7 +998,7 @@
                       </div>
                       <div class="edit-modal-actions">
                           <button type="button" onclick="closeModal()" >Cancel</button>
-                          <button type="submit">Save Changes</button>
+                          <button type="button" onclick="editButtonSendServer()">Save Changes</button>
                       </div>
                   </form>
             `;
@@ -911,34 +1007,7 @@
         name.value = selectedtag.name;
         role.value = selectedtag.role.toLowerCase();
         modal.style.display = "flex";
-        modal.style.display = "flex";
-        //sendRFIDRequest("/edit");
       });
-
-      async function sendRFIDRequest(url) {
-        const formData = new FormData();
-        formData.append("id", selectedtag.id);
-        formData.append("name", selectedtag.name);
-        formData.append("role", selectedtag.role);
-
-        try {
-          const response = await fetch(url, {
-            method: "POST",
-            body: formData,
-          });
-
-          if (response.ok) {
-            console.log("Request sent successfully");
-            alert("Operation completed successfully");
-          } else {
-            console.error("Failed to send request");
-            alert("Operation failed");
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("An error occurred");
-        }
-      }
 
       async function fetchAndTransformTags() {
         try {
@@ -969,7 +1038,11 @@
       }
 
       async function initializeTable() {
-        const tags = await fetchAndTransformTags();
+        let tags = await fetchAndTransformTags();
+        tags = {
+          fds32a: { name: "fdas fytr", role: "admin" },
+          f43fda: { name: "fdas hgfh", role: "user" },
+        };
         populateTable(tags);
       }
 
