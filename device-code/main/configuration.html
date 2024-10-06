@@ -715,84 +715,60 @@
       const invalidPasswordChars = /['"]/;
 
       let selectedtag = { id: "", name: "", role: "" };
-      let editedtag = { name: "", role: "" };
       const toast = document.getElementById("toast");
       const modalContent = document.getElementById("modal-main-content");
       const modal = document.getElementById("modal");
 
-      async function editButtonSendServer() {
-        let name = document.getElementById("editName").value;
-        let role = document.getElementById("editRole").value;
-        editedtag.name = name;
-        editedtag.role = role;
-
+      async function addButtonSendServer() {
+        let id = document.getElementById("addId");
+        let name = document.getElementById("addName");
+        let role = document.getElementById("addRole");
         if (
-          typeof selectedtag.name != "string" &&
-          typeof selectedtag.id != "string" &&
-          typeof selectedtag.role != "string" &&
-          selectedtag.name != "" &&
-          selectedtag.id != "" &&
-          selectedtag.role != ""
+          typeof id != "string" ||
+          typeof name != "string" ||
+          typeof role != "string"
         ) {
+          showToast("Invalid Datatype Error!");
           return;
         }
-
-        if (selectedtag.name)
-          if (
-            selectedtag.name === editedtag.name &&
-            selectedtag.role === editedtag.role
-          ) {
-            return;
-          }
+        if (name === "" || id === "" || role === "") {
+          if (name === "") showToast("Name field cannot be empty.");
+          if (role === "") showToast("Role field cannot be empty.");
+          if (id === "") showToast("ID field cannot be empty.");
+          return;
+        }
         const formData = new FormData();
-        formData.append("id", selectedtag.id);
-        formData.append(
-          "name",
-          selectedtag.name === name ? selectedtag.name : editedtag.name
-        );
-        formData.append(
-          "role",
-          selectedtag.role === editedtag.role
-            ? selectedtag.role
-            : editedtag.role
-        );
-        formData.append(
-          "tobechanged",
-          selectedtag.role !== editedtag.role &&
-            selectedtag.name !== editedtag.name
-            ? "both"
-            : selectedtag.role !== editedtag.role
-            ? "role"
-            : selectedtag.name !== editedtag.name
-            ? "name"
-            : ""
-        );
+        formData.append("id", id);
+        formData.append("name", name);
+        formData.append("role", role);
         try {
-          const response = await fetch("/edit", {
+          const response = await fetch("/add", {
             method: "POST",
             body: formData,
           });
 
           if (response.ok) {
-            console.log("Request sent successfully");
+            showToast("Operation completed successfully");
             alert("Operation completed successfully");
           } else {
             console.error("Failed to send request");
+            showToast("Operation failed");
             alert("Operation failed");
           }
         } catch (error) {
           console.error("Error:", error);
+          showToast("An error occurred");
           alert("An error occurred");
         }
       }
 
       async function deleteButtonSendServer() {
         if (
-          typeof selectedtag.name != "string" &&
-          typeof selectedtag.id != "string" &&
-          typeof selectedtag.role != "string" &&
-          selectedtag.name != "" &&
-          selectedtag.id != "" &&
+          typeof selectedtag.name != "string" ||
+          typeof selectedtag.id != "string" ||
+          typeof selectedtag.role != "string" ||
+          selectedtag.name != "" ||
+          selectedtag.id != "" ||
           selectedtag.role != ""
         ) {
           return;
@@ -806,14 +782,79 @@
           });
 
           if (response.ok) {
-            console.log("Request sent successfully");
+            showToast("Operation completed successfully");
             alert("Operation completed successfully");
           } else {
             console.error("Failed to send request");
+            showToast("Operation failed");
             alert("Operation failed");
           }
         } catch (error) {
           console.error("Error:", error);
+          showToast("An error occurred");
+          alert("An error occurred");
+        }
+      }
+
+      async function editButtonSendServer() {
+        let name = document.getElementById("editName").value;
+        let role = document.getElementById("editRole").value;
+        if (
+          typeof selectedtag.name != "string" ||
+          typeof selectedtag.id != "string" ||
+          typeof selectedtag.role != "string" ||
+          selectedtag.name === "" ||
+          selectedtag.id === "" ||
+          selectedtag.role === ""
+        ) {
+          return;
+        }
+
+        if (selectedtag.name === name && selectedtag.role === role) {
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("id", selectedtag.id);
+        formData.append(
+          "name",
+          selectedtag.name === name ? selectedtag.name : name
+        );
+        formData.append(
+          "role",
+          selectedtag.role === role ? selectedtag.role : role
+        );
+        formData.append(
+          "tobechanged",
+          selectedtag.role !== role && selectedtag.name !== name
+            ? "both"
+            : selectedtag.role !== role
+            ? "role"
+            : selectedtag.name !== name
+            ? "name"
+            : ""
+        );
+
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
+
+        try {
+          const response = await fetch("/edit", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            showToast("Operation completed successfully");
+            alert("Operation completed successfully");
+          } else {
+            showToast("Operation failed");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showToast("An error occurred");
           alert("An error occurred");
         }
       }
@@ -844,14 +885,13 @@
                 </button>
                 <button
                   class="modal-button add-done-button"
-                  onclick="confirmAdding()"
+                  onclick="addButtonSendServer()"
                 >
                   Done
                 </button>
               </div>
             `;
         modal.style.display = "flex";
-        //sendRFIDRequest("/add");
       });
 
       const deleteButton = document.getElementById("delete-tag");
@@ -940,7 +980,7 @@
                 </button>
                 <button
                   class="modal-button add-done-button"
-                  onclick="confirmAdding()"
+                  onclick="addButtonSendServer()"
                 >
                   Done
                 </button>
