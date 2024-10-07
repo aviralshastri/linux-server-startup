@@ -241,15 +241,11 @@ const char *PAGES::login = R"rawliteral(
         <p class="modal-description" style="margin-bottom: 20px">
           (only the admin RFID cards are eligible.)
         </p>
-        <div class="modal-buttons">
-          <button id="modal-cancel" class="modal-button">Cancel</button>
-        </div>
       </div>
     </div>
     <script>
       const modal = document.getElementById("modal");
       const rfid_login_button = document.getElementById("rfid-login");
-      const modal_cancel_button = document.getElementById("modal-cancel");
 
       rfid_login_button.addEventListener("click", async () => {
         modal.style.display = "flex";
@@ -274,26 +270,7 @@ const char *PAGES::login = R"rawliteral(
           alert("An error occurred");
         }
         rfid_login_button.disabled = false;
-      });
-
-      modal_cancel_button.addEventListener("click", async () => {
-        try {
-          const response = await fetch("/stopScan", {
-            method: "GET",
-          });
-
-          if (response.ok) {
-            console.log("Request sent successfully");
-          } else {
-            console.error("Failed to send request");
-            alert("Operation failed");
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("An error occurred");
-        }
         modal.style.display = "none";
-        rfid_login_button.disabled = false;
       });
     </script>
   </body>

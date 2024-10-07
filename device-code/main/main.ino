@@ -3,10 +3,12 @@
 #include <PAGES.h>
 #include <GENERALS.h>
 #include <RFID.h>
+#include <PIN_MANAGER.h>
 
 RFID rfid;
-
+PIN_MANAGER pin_manager;
 GENERALS generals;
+
 
 String ssid = "ESP32-SERVER-CONTROLLER";
 String password = generals.getUniqueId();
@@ -184,13 +186,11 @@ void handleSaveAPConfig() {
   }
 }
 
-bool stopScan = false;
-
 void handleAddScanTag() {
-  stopScan = false;
   String id = rfid.scan_tag();
   while (id == "") {
-    if (stopScan == true) {
+    if (digitalRead(pin_manager.center_button) == LOW) {
+      server.send(400, "text/plain", "Scan stopped in between.");
       break;
     }
     id = rfid.scan_tag();
@@ -201,11 +201,11 @@ void handleAddScanTag() {
 }
 
 void handleLoginScanTag() {
-  stopScan = false;
   Serial.println("Login Scan Tag Called!");
   String id = rfid.scan_tag();
   while (id == "") {
-    if (stopScan == true) {
+    if (digitalRead(pin_manager.center_button) == LOW) {
+      server.send(400, "text/plain", "Scan stopped in between.");
       break;
     }
     id = rfid.scan_tag();
@@ -221,15 +221,6 @@ void handleLoginScanTag() {
   Serial.println("Scan Stopped");
 }
 
-void handleStopScan() {
-  stopScan = true;
-  if (stopScan) {
-    server.send(302, "text/plain", "Scan Stopped");
-  } else {
-    server.send(302, "text/plain", "Scan not Stopped");
-  }
-}
-
 void handleLogout() {
   isAuthenticated = false;
   server.sendHeader("Location", "/");
@@ -242,6 +233,8 @@ void setup() {
   Serial.begin(115200);
 
   rfid.begin();
+  pin_manager.initPins();
+
 
   Serial.println(ssid.c_str());
   Serial.println(password.c_str());
@@ -265,7 +258,6 @@ void setup() {
   server.on("/edit", HTTP_POST, handleEdit);
   server.on("/addScanTag", HTTP_GET, handleAddScanTag);
   server.on("/loginScanTag", handleLoginScanTag);
-  server.on("/stopScan", handleStopScan);
   server.begin();
   Serial.println("Server started");
 }
