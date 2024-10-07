@@ -2,6 +2,9 @@
 #include <WebServer.h>
 #include <PAGES.h>
 #include <GENERALS.h>
+#include <RFID.h>
+
+RFID rfid;
 
 GENERALS generals;
 
@@ -73,7 +76,6 @@ void getAllTags() {
   Serial.println(jsonResponse);
 }
 
-
 void handleConfiguration() {
   if (isAuthenticated) {
     String html = PAGES::main;
@@ -107,13 +109,9 @@ void handleDelete() {
     return;
   }
   Serial.println("Delete called!");
-  if (server.hasArg("id") && server.hasArg("name") && server.hasArg("role")) {
+  if (server.hasArg("id")) {
     String tag_id = server.arg("id");
-    String name = server.arg("name");
-    String role = server.arg("role");
     Serial.println(tag_id);
-    Serial.println(name);
-    Serial.println(role);
     server.send(200, "text/plain", "Tag deleted successfully");
   } else {
     server.send(400, "text/plain", "Invalid Request");
@@ -186,6 +184,52 @@ void handleSaveAPConfig() {
   }
 }
 
+bool stopScan = false;
+
+void handleAddScanTag() {
+  stopScan = false;
+  String id = rfid.scan_tag();
+  while (id == "") {
+    if (stopScan == true) {
+      break;
+    }
+    id = rfid.scan_tag();
+  }
+  Serial.println(id);
+  Serial.println("Add Scan Tag Called!");
+  server.send(200, "text/plain", id);
+}
+
+void handleLoginScanTag() {
+  stopScan = false;
+  Serial.println("Login Scan Tag Called!");
+  String id = rfid.scan_tag();
+  while (id == "") {
+    if (stopScan == true) {
+      break;
+    }
+    id = rfid.scan_tag();
+  }
+  String correct = "230B4EFB";
+  if (id == correct) {
+    isAuthenticated = true;
+    server.sendHeader("Location", "/configuration", true);
+    server.send(302, "text/plain", "Redirecting to /configuration");
+  } else {
+    server.send(401, "text/plain", "Invalid Card!");
+  }
+  Serial.println("Scan Stopped");
+}
+
+void handleStopScan() {
+  stopScan = true;
+  if (stopScan) {
+    server.send(302, "text/plain", "Scan Stopped");
+  } else {
+    server.send(302, "text/plain", "Scan not Stopped");
+  }
+}
+
 void handleLogout() {
   isAuthenticated = false;
   server.sendHeader("Location", "/");
@@ -196,6 +240,8 @@ void setup() {
 
   delay(4000);
   Serial.begin(115200);
+
+  rfid.begin();
 
   Serial.println(ssid.c_str());
   Serial.println(password.c_str());
@@ -217,6 +263,9 @@ void setup() {
   server.on("/add", HTTP_POST, handleAdd);
   server.on("/delete", HTTP_POST, handleDelete);
   server.on("/edit", HTTP_POST, handleEdit);
+  server.on("/addScanTag", HTTP_GET, handleAddScanTag);
+  server.on("/loginScanTag", handleLoginScanTag);
+  server.on("/stopScan", handleStopScan);
   server.begin();
   Serial.println("Server started");
 }

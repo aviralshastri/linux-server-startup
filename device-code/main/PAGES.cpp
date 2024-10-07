@@ -1,176 +1,307 @@
 #include "PAGES.h"
 
-const char* PAGES::login = R"rawliteral(
+const char *PAGES::login = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login-Server Control</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-            background: linear-gradient(45deg, #1a1a2e 0%, #16213e 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 1rem;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+          "Segoe UI Symbol";
+        background: linear-gradient(45deg, #1a1a2e 0%, #16213e 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 1rem;
+      }
 
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-        }
+      .login-container {
+        width: 100%;
+        max-width: 400px;
+      }
 
-        .login-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-        }
+      .login-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 2rem;
+      }
 
-        h2 {
-            color: #ffffff;
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-align: center;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-        }
+      h2 {
+        color: #ffffff;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-align: center;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+      }
 
-        .input-group {
-            margin-bottom: 1rem;
-        }
+      .input-group {
+        margin-bottom: 1rem;
+      }
 
-        label {
-            display: block;
-            color: #a0a0a0;
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
+      label {
+        display: block;
+        color: #a0a0a0;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+      }
 
-        input {
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 1rem;
-        }
+      input {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 1rem;
+      }
 
-        input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
+      input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+      }
 
-        input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-        }
+      input:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+      }
 
-        button {
-            width: 100%;
-            background: rgb(0, 93, 222);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            padding: 0.8rem 1rem;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+      button {
+        width: 100%;
+        background: rgb(0, 93, 222);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
 
-        button:hover {
-            background: rgb(0, 74, 192);
-        }
+      button:hover {
+        background: rgb(0, 74, 192);
+      }
 
-        .rfid-login {
-            display: block;
-            width: 100%;
-            background: rgb(0, 93, 222);
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            padding: 0.8rem 1rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 1rem;
-            text-align: center;
-            text-decoration: none;
-        }
+      .rfid-login {
+        display: block;
+        width: 100%;
+        background: rgb(0, 93, 222);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 1rem;
+        text-align: center;
+        text-decoration: none;
+      }
 
-        .rfid-login:hover {
-            background: rgb(0, 74, 192);
-        }
+      .rfid-login:hover {
+        background: rgb(0, 74, 192);
+      }
 
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 1rem 0;
-            color: #a0a0a0;
-        }
+      .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1rem 0;
+        color: #a0a0a0;
+      }
 
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
 
-        .divider::before {
-            margin-right: .5em;
-        }
+      .divider::before {
+        margin-right: 0.5em;
+      }
 
-        .divider::after {
-            margin-left: .5em;
-        }
-        .p-text{
-            font-size: 0.9rem;
-            color: white;
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
+      .divider::after {
+        margin-left: 0.5em;
+      }
+      .p-text {
+        font-size: 0.9rem;
+        color: white;
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background-color: #181f39;
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        max-width: 350px;
+        width: 100%;
+      }
+
+      .modal-title {
+        font-size: 24px;
+        margin-top: 0;
+        margin-bottom: 15px;
+      }
+
+      .modal-description {
+        font-size: 16px;
+        line-height: 1.5;
+        margin-bottom: 10px;
+      }
+
+      .modal-buttons {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .modal-button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        background-color: #007bff;
+        color: white;
+      }
+
+      .modal-button:hover {
+        background-color: #0056b3;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="login-container">
-        <div class="login-card">
-            <h2>Login</h2>
-            <p class="p-text">(only autherized devide can access the dashboard)</p>
-            <form method="POST" action="/login">
-                <div class="input-group">
-                    <label for="userid">Username</label>
-                    <input type="text" id="userid" name="userid" placeholder="Enter your userid">
-                </div>
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Enter your password">
-                </div>
-                <button type="submit">Sign In</button>
-            </form>
-            <div class="divider">or</div>
-            <button class="rfid-login">Login with RFID</button>
-        </div>
+      <div class="login-card">
+        <h2>Login</h2>
+        <p class="p-text">(only authorized device can access the dashboard)</p>
+        <form method="POST" action="/login">
+          <div class="input-group">
+            <label for="userid">Username</label>
+            <input
+              type="text"
+              id="userid"
+              name="userid"
+              placeholder="Enter your userid"
+            />
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+            />
+          </div>
+          <button type="submit">Sign In</button>
+        </form>
+        <div class="divider">or</div>
+        <button class="rfid-login" id="rfid-login">Login with RFID</button>
+      </div>
     </div>
-</body>
+    <div id="modal" class="modal-overlay">
+      <div class="modal-content" id="modal-main-content">
+        <h3 class="modal-title">RFID Login</h3>
+        <p class="modal-description">
+          Please place RFID tag closer to the scanner.
+        </p>
+        <p class="modal-description" style="margin-bottom: 20px">
+          (only the admin RFID cards are eligible.)
+        </p>
+        <div class="modal-buttons">
+          <button id="modal-cancel" class="modal-button">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      const modal = document.getElementById("modal");
+      const rfid_login_button = document.getElementById("rfid-login");
+      const modal_cancel_button = document.getElementById("modal-cancel");
+
+      rfid_login_button.addEventListener("click", async () => {
+        modal.style.display = "flex";
+        rfid_login_button.disabled = true;
+        try {
+          const response = await fetch("/loginScanTag", {
+            method: "GET",
+          });
+
+          if (response.ok) {
+            console.log("Request sent successfully");
+            window.location.href = "/configuration";
+          } else if (response.status === 401) {
+            console.error("Unauthorized access");
+            alert("You are not authorized. Please log in.");
+          } else {
+            console.error("Failed to send request");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred");
+        }
+        rfid_login_button.disabled = false;
+      });
+
+      modal_cancel_button.addEventListener("click", async () => {
+        try {
+          const response = await fetch("/stopScan", {
+            method: "GET",
+          });
+
+          if (response.ok) {
+            console.log("Request sent successfully");
+          } else {
+            console.error("Failed to send request");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          alert("An error occurred");
+        }
+        modal.style.display = "none";
+        rfid_login_button.disabled = false;
+      });
+    </script>
+  </body>
 </html>
+
 )rawliteral";
 
-const char* PAGES::main = R"rawliteral(
+const char *PAGES::main = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -379,11 +510,11 @@ const char* PAGES::main = R"rawliteral(
       }
 
       .edit-btn {
-        background-color: #ebc404f0;
+        background: rgb(0, 97, 232);
       }
 
       .edit-btn:hover {
-        background-color: #ebc504ce;
+        background: rgba(1, 84, 201, 0.907);
       }
 
       .delete-btn {
@@ -579,6 +710,21 @@ const char* PAGES::main = R"rawliteral(
 
       .toast-close:hover {
         opacity: 1;
+      }
+
+      .logoutButton {
+        margin-top: 20px;
+        background: rgba(222, 26, 0, 0.929);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+      }
+
+      .logoutButton:hover {
+        background: rgb(192, 16, 0);
       }
 
       @keyframes toast-in {
@@ -877,12 +1023,12 @@ const char* PAGES::main = R"rawliteral(
           </div>
         </div>
       </div>
+      <button class="logoutButton" id="logout-button">Logout</button>
     </div>
     <div id="modal" class="modal-overlay">
       <div class="modal-content" id="modal-main-content"></div>
     </div>
     <div class="toast" id="toast"></div>
-
     <script>
       const invalidIDChars = /[^a-zA-Z0-9 _-]/;
       const invalidPasswordChars = /['"]/;
@@ -892,6 +1038,191 @@ const char* PAGES::main = R"rawliteral(
       const modalContent = document.getElementById("modal-main-content");
       const modal = document.getElementById("modal");
 
+      const logout_button=document.getElementById("logout-button");
+      logout_button.addEventListener("click",async ()=>{
+        try {
+          const response = await fetch("/logout", {
+            method: "GET",
+          });
+
+          if (response.ok) {
+            showToast("Operation completed successfully");
+            window.location.href = "/";
+          } else {
+            console.error("Failed to send request");
+            showToast("Operation failed");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showToast("An error occurred");
+          alert("An error occurred");
+        }
+      })
+
+      async function addButtonSendServer() {
+        let id = document.getElementById("addId");
+        let name = document.getElementById("addName");
+        let role = document.getElementById("addRole");
+        if (
+          typeof id != "string" ||
+          typeof name != "string" ||
+          typeof role != "string"
+        ) {
+          showToast("Invalid Datatype Error!");
+          return;
+        }
+        if (name === "" || id === "" || role === "") {
+          if (name === "") showToast("Name field cannot be empty.");
+          if (role === "") showToast("Role field cannot be empty.");
+          if (id === "") showToast("ID field cannot be empty.");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("id", id);
+        formData.append("name", name);
+        formData.append("role", role);
+        try {
+          const response = await fetch("/add", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            showToast("Operation completed successfully");
+          } else {
+            console.error("Failed to send request");
+            showToast("Operation failed");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showToast("An error occurred");
+          alert("An error occurred");
+        }
+      }
+
+      async function addScanTag() {
+        const button = document.getElementById("addScanTag");
+        button.disabled = true;
+        try {
+          const response = await fetch("/addScanTag", {
+            method: "GET",
+          });
+
+          if (response.ok) {
+            const id = await response.text();
+            const tag_id = document.getElementById("addId");
+            tag_id.value = id;
+            showToast("Operation completed successfully");
+          } else {
+            console.error("Failed to send request");
+            showToast("Operation failed");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showToast("An error occurred");
+          alert("An error occurred");
+        }
+        button.disabled = false;
+      }
+
+      async function deleteButtonSendServer() {
+        if (
+          typeof selectedtag.name != "string" ||
+          typeof selectedtag.id != "string" ||
+          typeof selectedtag.role != "string" ||
+          selectedtag.name != "" ||
+          selectedtag.id != "" ||
+          selectedtag.role != ""
+        ) {
+          return;
+        }
+        const formData = new FormData();
+        formData.append("id", selectedtag.id);
+        try {
+          const response = await fetch("/delete", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            showToast("Operation completed successfully");
+          } else {
+            console.error("Failed to send request");
+            showToast("Operation failed");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showToast("An error occurred");
+          alert("An error occurred");
+        }
+      }
+
+      async function editButtonSendServer() {
+        let name = document.getElementById("editName").value;
+        let role = document.getElementById("editRole").value;
+        if (
+          typeof selectedtag.name != "string" ||
+          typeof selectedtag.id != "string" ||
+          typeof selectedtag.role != "string" ||
+          selectedtag.name === "" ||
+          selectedtag.id === "" ||
+          selectedtag.role === ""
+        ) {
+          return;
+        }
+
+        if (selectedtag.name === name && selectedtag.role === role) {
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("id", selectedtag.id);
+        formData.append(
+          "name",
+          selectedtag.name === name ? selectedtag.name : name
+        );
+        formData.append(
+          "role",
+          selectedtag.role === role ? selectedtag.role : role
+        );
+        formData.append(
+          "tobechanged",
+          selectedtag.role !== role && selectedtag.name !== name
+            ? "both"
+            : selectedtag.role !== role
+            ? "role"
+            : selectedtag.name !== name
+            ? "name"
+            : ""
+        );
+
+        for (let [key, value] of formData.entries()) {
+          console.log(`${key}: ${value}`);
+        }
+
+        try {
+          const response = await fetch("/edit", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            showToast("Operation completed successfully");
+          } else {
+            showToast("Operation failed");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showToast("An error occurred");
+          alert("An error occurred");
+        }
+      }
+
       const addButton = document.getElementById("add-tag");
       addButton.addEventListener("click", async function () {
         modalContent.innerHTML = `
@@ -899,15 +1230,15 @@ const char* PAGES::main = R"rawliteral(
                     <div class="edit-modal-form-group">
                           <label for="addId">ID</label>
                           <input autocomplete="off" type="text" id="addId" name="name" placeholder="Scan a tag" required disabled>
-                          <button type="button" id="scanButton" class="add-scan-button">Scan</button>
+                          <button type="button" onclick="addScanTag()" id="addScanTag" class="add-scan-button">Scan</button>
                       </div>
                     <div class="edit-modal-form-group">
-                          <label for="editName">Name</label>
-                          <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
+                          <label for="addName">Name</label>
+                          <input autocomplete="off" type="text" id="addName" name="name" placeholder="Enter name" required>
                       </div>
                       <div class="edit-modal-form-group">
-                          <label for="editRole">Role</label>
-                          <select id="editRole" name="role">
+                          <label for="addRole">Role</label>
+                          <select id="addRole" name="role">
                               <option value="admin">Admin</option>
                               <option value="user">User</option>
                           </select>
@@ -918,14 +1249,13 @@ const char* PAGES::main = R"rawliteral(
                 </button>
                 <button
                   class="modal-button add-done-button"
-                  onclick="confirmAdding()"
+                  onclick="addButtonSendServer()"
                 >
                   Done
                 </button>
               </div>
             `;
         modal.style.display = "flex";
-        //sendRFIDRequest("/add");
       });
 
       const deleteButton = document.getElementById("delete-tag");
@@ -946,14 +1276,13 @@ const char* PAGES::main = R"rawliteral(
                 </button>
                 <button
                   class="modal-button delete-button"
-                  onclick="confirmDeletion()"
+                  onclick="deleteButtonSendServer()"
                 >
                   Delete
                 </button>
               </div>
             `;
         modal.style.display = "flex";
-        //sendRFIDRequest("/delete");
       });
 
       const editButton = document.getElementById("edit-tag");
@@ -964,7 +1293,7 @@ const char* PAGES::main = R"rawliteral(
         }
         modalContent.innerHTML = `
             <h2 class="modal-title">Edit Item</h2>
-            <form action="/edit" method="POST">
+            <form>
                       <div class="edit-modal-form-group">
                           <label for="editName">Name</label>
                           <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
@@ -978,7 +1307,7 @@ const char* PAGES::main = R"rawliteral(
                       </div>
                       <div class="edit-modal-actions">
                           <button type="button" onclick="closeModal()" >Cancel</button>
-                          <button type="submit">Save Changes</button>
+                          <button type="button" onclick="editButtonSendServer()">Save Changes</button>
                       </div>
                   </form>
             `;
@@ -987,7 +1316,6 @@ const char* PAGES::main = R"rawliteral(
         name.value = selectedtag.name;
         role.value = selectedtag.role.toLowerCase();
         modal.style.display = "flex";
-        //sendRFIDRequest("/edit");
       });
 
       const addButtonMobile = document.getElementById("add-tag-mobile");
@@ -997,15 +1325,15 @@ const char* PAGES::main = R"rawliteral(
                     <div class="edit-modal-form-group">
                           <label for="addId">ID</label>
                           <input autocomplete="off" type="text" id="addId" name="name" placeholder="Scan a tag" required disabled>
-                          <button type="button" id="scanButton" class="add-scan-button">Scan</button>
+                          <button type="button" onclick="addScanTag()" class="add-scan-button">Scan</button>
                       </div>
                     <div class="edit-modal-form-group">
-                          <label for="editName">Name</label>
-                          <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
+                          <label for="addName">Name</label>
+                          <input autocomplete="off" type="text" id="addName" name="name" placeholder="Enter name" required>
                       </div>
                       <div class="edit-modal-form-group">
-                          <label for="editRole">Role</label>
-                          <select id="editRole" name="role">
+                          <label for="addRole">Role</label>
+                          <select id="addRole" name="role">
                               <option value="admin">Admin</option>
                               <option value="user">User</option>
                           </select>
@@ -1016,14 +1344,13 @@ const char* PAGES::main = R"rawliteral(
                 </button>
                 <button
                   class="modal-button add-done-button"
-                  onclick="confirmAdding()"
+                  onclick="addButtonSendServer()"
                 >
                   Done
                 </button>
               </div>
             `;
         modal.style.display = "flex";
-        //sendRFIDRequest("/add");
       });
 
       const deleteButtonMobile = document.getElementById("delete-tag-mobile");
@@ -1044,24 +1371,24 @@ const char* PAGES::main = R"rawliteral(
                 </button>
                 <button
                   class="modal-button delete-button"
-                  onclick="confirmDeletion()"
+                  onclick="deleteButtonSendServer()"
                 >
                   Delete
                 </button>
               </div>
             `;
         modal.style.display = "flex";
-        //sendRFIDRequest("/delete");
       });
+
       const editButtonMobile = document.getElementById("edit-tag-mobile");
-      editButtonMobile.addEventListener("click", async function () {
+      editButtonMobile.addEventListener("click", function () {
         if (!selectedtag.id) {
           showToast("Please select a tag first");
           return;
         }
         modalContent.innerHTML = `
             <h2 class="modal-title">Edit Item</h2>
-            <form action="/edit" method="POST">
+            <form>
                       <div class="edit-modal-form-group">
                           <label for="editName">Name</label>
                           <input autocomplete="off" type="text" id="editName" name="name" placeholder="Enter name" required>
@@ -1075,7 +1402,7 @@ const char* PAGES::main = R"rawliteral(
                       </div>
                       <div class="edit-modal-actions">
                           <button type="button" onclick="closeModal()" >Cancel</button>
-                          <button type="submit">Save Changes</button>
+                          <button type="button" onclick="editButtonSendServer()">Save Changes</button>
                       </div>
                   </form>
             `;
@@ -1084,34 +1411,7 @@ const char* PAGES::main = R"rawliteral(
         name.value = selectedtag.name;
         role.value = selectedtag.role.toLowerCase();
         modal.style.display = "flex";
-        modal.style.display = "flex";
-        //sendRFIDRequest("/edit");
       });
-
-      async function sendRFIDRequest(url) {
-        const formData = new FormData();
-        formData.append("id", selectedtag.id);
-        formData.append("name", selectedtag.name);
-        formData.append("role", selectedtag.role);
-
-        try {
-          const response = await fetch(url, {
-            method: "POST",
-            body: formData,
-          });
-
-          if (response.ok) {
-            console.log("Request sent successfully");
-            alert("Operation completed successfully");
-          } else {
-            console.error("Failed to send request");
-            alert("Operation failed");
-          }
-        } catch (error) {
-          console.error("Error:", error);
-          alert("An error occurred");
-        }
-      }
 
       async function fetchAndTransformTags() {
         try {
@@ -1142,7 +1442,11 @@ const char* PAGES::main = R"rawliteral(
       }
 
       async function initializeTable() {
-        const tags = await fetchAndTransformTags();
+        let tags = await fetchAndTransformTags();
+        tags = {
+          fds32a: { name: "fdas fytr", role: "admin" },
+          f43fda: { name: "fdas hgfh", role: "user" },
+        };
         populateTable(tags);
       }
 
@@ -1215,7 +1519,6 @@ const char* PAGES::main = R"rawliteral(
 
           if (response.ok) {
             console.log("Request sent successfully");
-            alert("Operation completed successfully");
           } else {
             console.error("Failed to send request");
             alert("Operation failed");

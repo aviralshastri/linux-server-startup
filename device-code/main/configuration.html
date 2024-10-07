@@ -408,6 +408,21 @@
         opacity: 1;
       }
 
+      .logoutButton {
+        margin-top: 20px;
+        background: rgba(222, 26, 0, 0.929);
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+      }
+
+      .logoutButton:hover {
+        background: rgb(192, 16, 0);
+      }
+
       @keyframes toast-in {
         from {
           transform: translateX(-50%) translateY(100%);
@@ -704,12 +719,12 @@
           </div>
         </div>
       </div>
+      <button class="logoutButton" id="logout-button">Logout</button>
     </div>
     <div id="modal" class="modal-overlay">
       <div class="modal-content" id="modal-main-content"></div>
     </div>
     <div class="toast" id="toast"></div>
-
     <script>
       const invalidIDChars = /[^a-zA-Z0-9 _-]/;
       const invalidPasswordChars = /['"]/;
@@ -718,6 +733,28 @@
       const toast = document.getElementById("toast");
       const modalContent = document.getElementById("modal-main-content");
       const modal = document.getElementById("modal");
+
+      const logout_button=document.getElementById("logout-button");
+      logout_button.addEventListener("click",async ()=>{
+        try {
+          const response = await fetch("/logout", {
+            method: "GET",
+          });
+
+          if (response.ok) {
+            showToast("Operation completed successfully");
+            window.location.href = "/";
+          } else {
+            console.error("Failed to send request");
+            showToast("Operation failed");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showToast("An error occurred");
+          alert("An error occurred");
+        }
+      })
 
       async function addButtonSendServer() {
         let id = document.getElementById("addId");
@@ -749,7 +786,6 @@
 
           if (response.ok) {
             showToast("Operation completed successfully");
-            alert("Operation completed successfully");
           } else {
             console.error("Failed to send request");
             showToast("Operation failed");
@@ -760,6 +796,32 @@
           showToast("An error occurred");
           alert("An error occurred");
         }
+      }
+
+      async function addScanTag() {
+        const button = document.getElementById("addScanTag");
+        button.disabled = true;
+        try {
+          const response = await fetch("/addScanTag", {
+            method: "GET",
+          });
+
+          if (response.ok) {
+            const id = await response.text();
+            const tag_id = document.getElementById("addId");
+            tag_id.value = id;
+            showToast("Operation completed successfully");
+          } else {
+            console.error("Failed to send request");
+            showToast("Operation failed");
+            alert("Operation failed");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showToast("An error occurred");
+          alert("An error occurred");
+        }
+        button.disabled = false;
       }
 
       async function deleteButtonSendServer() {
@@ -783,7 +845,6 @@
 
           if (response.ok) {
             showToast("Operation completed successfully");
-            alert("Operation completed successfully");
           } else {
             console.error("Failed to send request");
             showToast("Operation failed");
@@ -847,7 +908,6 @@
 
           if (response.ok) {
             showToast("Operation completed successfully");
-            alert("Operation completed successfully");
           } else {
             showToast("Operation failed");
             alert("Operation failed");
@@ -866,7 +926,7 @@
                     <div class="edit-modal-form-group">
                           <label for="addId">ID</label>
                           <input autocomplete="off" type="text" id="addId" name="name" placeholder="Scan a tag" required disabled>
-                          <button type="button" id="scanButton" class="add-scan-button">Scan</button>
+                          <button type="button" onclick="addScanTag()" id="addScanTag" class="add-scan-button">Scan</button>
                       </div>
                     <div class="edit-modal-form-group">
                           <label for="addName">Name</label>
@@ -961,7 +1021,7 @@
                     <div class="edit-modal-form-group">
                           <label for="addId">ID</label>
                           <input autocomplete="off" type="text" id="addId" name="name" placeholder="Scan a tag" required disabled>
-                          <button type="button" id="scanButton" class="add-scan-button">Scan</button>
+                          <button type="button" onclick="addScanTag()" class="add-scan-button">Scan</button>
                       </div>
                     <div class="edit-modal-form-group">
                           <label for="addName">Name</label>
@@ -1155,7 +1215,6 @@
 
           if (response.ok) {
             console.log("Request sent successfully");
-            alert("Operation completed successfully");
           } else {
             console.error("Failed to send request");
             alert("Operation failed");
