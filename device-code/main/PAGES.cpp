@@ -211,6 +211,7 @@ const char *PAGES::login = R"rawliteral(
           <div class="input-group">
             <label for="userid">Username</label>
             <input
+              autocomplete="off"
               type="text"
               id="userid"
               name="userid"
@@ -220,6 +221,7 @@ const char *PAGES::login = R"rawliteral(
           <div class="input-group">
             <label for="password">Password</label>
             <input
+              autocomplete="new-password"
               type="password"
               id="password"
               name="password"
@@ -1015,8 +1017,8 @@ const char *PAGES::main = R"rawliteral(
       const modalContent = document.getElementById("modal-main-content");
       const modal = document.getElementById("modal");
 
-      const logout_button=document.getElementById("logout-button");
-      logout_button.addEventListener("click",async ()=>{
+      const logout_button = document.getElementById("logout-button");
+      logout_button.addEventListener("click", async () => {
         try {
           const response = await fetch("/logout", {
             method: "GET",
@@ -1035,7 +1037,7 @@ const char *PAGES::main = R"rawliteral(
           showToast("An error occurred");
           alert("An error occurred");
         }
-      })
+      });
 
       async function addButtonSendServer() {
         let id = document.getElementById("addId");
@@ -1092,6 +1094,7 @@ const char *PAGES::main = R"rawliteral(
             const tag_id = document.getElementById("addId");
             tag_id.value = id;
             showToast("Operation completed successfully");
+            closeModal();
           } else {
             console.error("Failed to send request");
             showToast("Operation failed");
@@ -1110,10 +1113,11 @@ const char *PAGES::main = R"rawliteral(
           typeof selectedtag.name != "string" ||
           typeof selectedtag.id != "string" ||
           typeof selectedtag.role != "string" ||
-          selectedtag.name != "" ||
-          selectedtag.id != "" ||
-          selectedtag.role != ""
+          selectedtag.name === "" ||
+          selectedtag.id === "" ||
+          selectedtag.role === ""
         ) {
+          console.log("data error!");
           return;
         }
         const formData = new FormData();
@@ -1126,6 +1130,7 @@ const char *PAGES::main = R"rawliteral(
 
           if (response.ok) {
             showToast("Operation completed successfully");
+            closeModal();
           } else {
             console.error("Failed to send request");
             showToast("Operation failed");
@@ -1142,40 +1147,25 @@ const char *PAGES::main = R"rawliteral(
         let name = document.getElementById("editName").value;
         let role = document.getElementById("editRole").value;
         if (
-          typeof selectedtag.name != "string" ||
-          typeof selectedtag.id != "string" ||
-          typeof selectedtag.role != "string" ||
-          selectedtag.name === "" ||
-          selectedtag.id === "" ||
-          selectedtag.role === ""
+          typeof selectedtag.name !== "string" ||
+          typeof selectedtag.id !== "string" ||
+          typeof selectedtag.role !== "string" ||
+          selectedtag.id === ""
         ) {
-          return;
-        }
-
-        if (selectedtag.name === name && selectedtag.role === role) {
           return;
         }
 
         const formData = new FormData();
         formData.append("id", selectedtag.id);
-        formData.append(
-          "name",
-          selectedtag.name === name ? selectedtag.name : name
-        );
-        formData.append(
-          "role",
-          selectedtag.role === role ? selectedtag.role : role
-        );
-        formData.append(
-          "tobechanged",
-          selectedtag.role !== role && selectedtag.name !== name
-            ? "both"
-            : selectedtag.role !== role
-            ? "role"
-            : selectedtag.name !== name
-            ? "name"
-            : ""
-        );
+        if (selectedtag.name !== name && name !== "") {
+          formData.append("name", name);
+        }
+        if (selectedtag.role !== role && role !== "") {
+          formData.append("role", role);
+        }
+        if (!formData.has("name") && !formData.has("role")) {
+          return;
+        }
 
         for (let [key, value] of formData.entries()) {
           console.log(`${key}: ${value}`);
@@ -1189,6 +1179,7 @@ const char *PAGES::main = R"rawliteral(
 
           if (response.ok) {
             showToast("Operation completed successfully");
+            closeModal();
           } else {
             showToast("Operation failed");
             alert("Operation failed");
