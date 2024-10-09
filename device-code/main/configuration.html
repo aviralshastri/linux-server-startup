@@ -757,9 +757,10 @@
       });
 
       async function addButtonSendServer() {
-        let id = document.getElementById("addId");
-        let name = document.getElementById("addName");
-        let role = document.getElementById("addRole");
+        let id = document.getElementById("addId").value;
+        let name = document.getElementById("addName").value;
+        let role = document.getElementById("addRole").value;
+        console.log(id, name, role);
         if (
           typeof id != "string" ||
           typeof name != "string" ||
@@ -811,7 +812,6 @@
             const tag_id = document.getElementById("addId");
             tag_id.value = id;
             showToast("Operation completed successfully");
-            closeModal();
           } else {
             console.error("Failed to send request");
             showToast("Operation failed");
@@ -1128,10 +1128,6 @@
 
       async function initializeTable() {
         let tags = await fetchAndTransformTags();
-        tags = {
-          fds32a: { name: "fdas fytr", role: "admin" },
-          f43fda: { name: "fdas hgfh", role: "user" },
-        };
         populateTable(tags);
       }
 

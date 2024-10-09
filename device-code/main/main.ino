@@ -119,6 +119,15 @@ void handleAdd()
     Serial.println(tag_id);
     Serial.println(name);
     Serial.println(role);
+    if (generals.tag_exists(tag_id))
+    {
+      Serial.println("exist");
+      server.send(400, "text/plain", "Already exist!");
+    }
+    else
+    {
+      generals.add_tag(tag_id, name, role);
+    }
     server.send(200, "text/plain", "Tag added successfully");
   }
   else
@@ -186,7 +195,6 @@ void handleEdit()
     server.send(400, "text/plain", "Invalid Request");
   }
 }
-
 
 void handleSaveUserConfig()
 {
