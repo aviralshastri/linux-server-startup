@@ -1009,9 +1009,11 @@ const char *PAGES::main = R"rawliteral(
     </div>
     <div class="toast" id="toast"></div>
     <script>
+
       const invalidIDChars = /[^a-zA-Z0-9 _-]/;
       const invalidPasswordChars = /['"]/;
 
+      let selectedRow = null;
       let selectedtag = { id: "", name: "", role: "" };
       const toast = document.getElementById("toast");
       const modalContent = document.getElementById("modal-main-content");
@@ -1089,14 +1091,28 @@ const char *PAGES::main = R"rawliteral(
         const tableBodyMobile = document.getElementById("mobile-table-body");
         const tableBody = document.getElementById("table-body");
 
+
         function createRow(id, name, role) {
           const row = document.createElement("tr");
           row.id = id;
           row.innerHTML = `
-            <td class="table-ele">${id}</td>
-            <td class="table-ele">${name}</td>
-            <td class="table-ele">${role}</td>
-        `;
+      <td class="table-ele">${id}</td>
+      <td class="table-ele">${name}</td>
+      <td class="table-ele">${role}</td>`;
+          row.addEventListener("click", () => {
+            if (selectedRow === row) {
+              row.style.backgroundColor = "";
+              selectedtag = { id: "", name: "", role: "" };
+              selectedRow = null;
+            } else {
+              if (selectedRow) {
+                selectedRow.style.backgroundColor = "";
+              }
+              row.style.backgroundColor = "#2b2d38";
+              selectedtag = { id: id, name: name, role: role };
+              selectedRow = row;
+            }
+          });
           return row;
         }
 
@@ -1104,8 +1120,6 @@ const char *PAGES::main = R"rawliteral(
         const newRowDesktop = createRow(id, name, role);
         tableBodyMobile.appendChild(newRowMobile);
         tableBody.appendChild(newRowDesktop);
-        
-        console.log(`New tag added: ID=${id}, Name=${name}, Role=${role}`);
       }
 
       async function addScanTag() {
@@ -1461,7 +1475,6 @@ const char *PAGES::main = R"rawliteral(
       function populateTable(tags) {
         const tableBodyMobile = document.getElementById("mobile-table-body");
         const tableBody = document.getElementById("table-body");
-        let selectedRow = null;
 
         function createRow(id, tag) {
           const row = document.createElement("tr");
