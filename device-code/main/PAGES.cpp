@@ -1062,18 +1062,19 @@ const char *PAGES::main = R"rawliteral(
         formData.append("id", id);
         formData.append("name", name);
         formData.append("role", role);
+        
         try {
           const response = await fetch("/add", {
             method: "POST",
             body: formData,
           });
-
+          const message = await response.text();
           if (response.ok) {
             showToast("Operation completed successfully");
           } else {
             console.error("Failed to send request");
-            showToast("Operation failed");
-            alert("Operation failed");
+            showToast("Operation failed: " + message);
+            alert("Operation failed: " + message);
           }
         } catch (error) {
           console.error("Error:", error);
