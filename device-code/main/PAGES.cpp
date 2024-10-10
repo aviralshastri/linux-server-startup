@@ -1062,7 +1062,7 @@ const char *PAGES::main = R"rawliteral(
         formData.append("id", id);
         formData.append("name", name);
         formData.append("role", role);
-        
+
         try {
           const response = await fetch("/add", {
             method: "POST",
@@ -1071,6 +1071,8 @@ const char *PAGES::main = R"rawliteral(
           const message = await response.text();
           if (response.ok) {
             showToast("Operation completed successfully");
+            closeModal();
+            addTagRow(id, name, role);
           } else {
             console.error("Failed to send request");
             showToast("Operation failed: " + message);
@@ -1081,6 +1083,29 @@ const char *PAGES::main = R"rawliteral(
           showToast("An error occurred");
           alert("An error occurred");
         }
+      }
+
+      function addTagRow(id, name, role) {
+        const tableBodyMobile = document.getElementById("mobile-table-body");
+        const tableBody = document.getElementById("table-body");
+
+        function createRow(id, name, role) {
+          const row = document.createElement("tr");
+          row.id = id;
+          row.innerHTML = `
+            <td class="table-ele">${id}</td>
+            <td class="table-ele">${name}</td>
+            <td class="table-ele">${role}</td>
+        `;
+          return row;
+        }
+
+        const newRowMobile = createRow(id, name, role);
+        const newRowDesktop = createRow(id, name, role);
+        tableBodyMobile.appendChild(newRowMobile);
+        tableBody.appendChild(newRowDesktop);
+        
+        console.log(`New tag added: ID=${id}, Name=${name}, Role=${role}`);
       }
 
       async function addScanTag() {
@@ -1132,6 +1157,7 @@ const char *PAGES::main = R"rawliteral(
           if (response.ok) {
             showToast("Operation completed successfully");
             closeModal();
+            deleteRowById(selectedtag.id);
           } else {
             console.error("Failed to send request");
             showToast("Operation failed");
@@ -1142,6 +1168,23 @@ const char *PAGES::main = R"rawliteral(
           showToast("An error occurred");
           alert("An error occurred");
         }
+      }
+
+      function deleteRowById(tagId) {
+        const mobileRow = document.querySelector(
+          `#mobile-table-body tr[id="${tagId}"]`
+        );
+        const desktopRow = document.querySelector(
+          `#table-body tr[id="${tagId}"]`
+        );
+        if (mobileRow) {
+          mobileRow.remove();
+        }
+        if (desktopRow) {
+          desktopRow.remove();
+        }
+        selectedtag = { id: "", name: "", role: "" };
+        console.log(`Tag with ID ${tagId} has been deleted from the tables.`);
       }
 
       async function editButtonSendServer() {
@@ -1649,5 +1692,6 @@ const char *PAGES::main = R"rawliteral(
     </script>
   </body>
 </html>
+
 
 )rawliteral";
