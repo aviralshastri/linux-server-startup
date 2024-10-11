@@ -1009,10 +1009,11 @@ const char *PAGES::main = R"rawliteral(
     </div>
     <div class="toast" id="toast"></div>
     <script>
-
       const invalidIDChars = /[^a-zA-Z0-9 _-]/;
       const invalidPasswordChars = /['"]/;
 
+      let tags = {};
+      let tagscount = 0;
       let selectedRow = null;
       let selectedtag = { id: "", name: "", role: "" };
       const toast = document.getElementById("toast");
@@ -1054,6 +1055,11 @@ const char *PAGES::main = R"rawliteral(
           showToast("Invalid Datatype Error!");
           return;
         }
+        if (tagscount >= 3) {
+          showToast("Max limit reached: already 3 tags exist.");
+          return;
+        }
+        console.log(tagscount);
         if (name === "" || id === "" || role === "") {
           if (name === "") showToast("Name field cannot be empty.");
           if (role === "") showToast("Role field cannot be empty.");
@@ -1075,6 +1081,7 @@ const char *PAGES::main = R"rawliteral(
             showToast("Operation completed successfully");
             closeModal();
             addTagRow(id, name, role);
+            tagscount +=1;
           } else {
             console.error("Failed to send request");
             showToast("Operation failed: " + message);
@@ -1090,7 +1097,6 @@ const char *PAGES::main = R"rawliteral(
       function addTagRow(id, name, role) {
         const tableBodyMobile = document.getElementById("mobile-table-body");
         const tableBody = document.getElementById("table-body");
-
 
         function createRow(id, name, role) {
           const row = document.createElement("tr");
@@ -1160,6 +1166,11 @@ const char *PAGES::main = R"rawliteral(
           console.log("data error!");
           return;
         }
+        if (tagscount === 1) {
+          showToast("Min limit reached: at least 1 tag should exist.");
+          return;
+        }
+        console.log(tagscount);
         const formData = new FormData();
         formData.append("id", selectedtag.id);
         try {
@@ -1172,6 +1183,7 @@ const char *PAGES::main = R"rawliteral(
             showToast("Operation completed successfully");
             closeModal();
             deleteRowById(selectedtag.id);
+            tagscount -=1;
           } else {
             console.error("Failed to send request");
             showToast("Operation failed");
@@ -1468,8 +1480,9 @@ const char *PAGES::main = R"rawliteral(
       }
 
       async function initializeTable() {
-        let tags = await fetchAndTransformTags();
+        tags = await fetchAndTransformTags();
         populateTable(tags);
+        tagscount = Object.keys(tags).length;
       }
 
       function populateTable(tags) {
@@ -1705,6 +1718,5 @@ const char *PAGES::main = R"rawliteral(
     </script>
   </body>
 </html>
-
 
 )rawliteral";
