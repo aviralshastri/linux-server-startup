@@ -1081,7 +1081,7 @@ const char *PAGES::main = R"rawliteral(
             showToast("Operation completed successfully");
             closeModal();
             addTagRow(id, name, role);
-            tagscount +=1;
+            tagscount += 1;
           } else {
             console.error("Failed to send request");
             showToast("Operation failed: " + message);
@@ -1183,7 +1183,7 @@ const char *PAGES::main = R"rawliteral(
             showToast("Operation completed successfully");
             closeModal();
             deleteRowById(selectedtag.id);
-            tagscount -=1;
+            tagscount -= 1;
           } else {
             console.error("Failed to send request");
             showToast("Operation failed");
@@ -1363,7 +1363,7 @@ const char *PAGES::main = R"rawliteral(
                     <div class="edit-modal-form-group">
                           <label for="addId">ID</label>
                           <input autocomplete="off" type="text" id="addId" name="name" placeholder="Scan a tag" required disabled>
-                          <button type="button" onclick="addScanTag()" class="add-scan-button">Scan</button>
+                          <button type="button" onclick="addScanTag()" id="addScanTag" class="add-scan-button">Scan</button>
                       </div>
                     <div class="edit-modal-form-group">
                           <label for="addName">Name</label>

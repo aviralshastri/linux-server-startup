@@ -198,7 +198,7 @@ void handleEdit()
       generals.update_tag_role(tag_id, role);
       server.send(200, "text/plain", "Tag edited successfully");
     }
-    }
+  }
   else
   {
     Serial.println("Invalid Request: Missing required fields");
@@ -271,6 +271,7 @@ void handleSaveAPConfig()
 
 void handleAddScanTag()
 {
+  unsigned long startTime = millis();
   String id = rfid.scan_tag();
   while (id == "")
   {
@@ -279,17 +280,30 @@ void handleAddScanTag()
       server.send(400, "text/plain", "Scan stopped in between.");
       break;
     }
+    if (millis() - startTime >= 10000)
+    {
+      server.send(400, "text/plain", "Timeout error: No scan within 10 seconds.");
+      break;
+    }
+
     id = rfid.scan_tag();
   }
-  Serial.println(id);
-  Serial.println("Add Scan Tag Called!");
-  server.send(200, "text/plain", id);
+  if (id != "")
+  {
+    Serial.println(id);
+    Serial.println("Add Scan Tag Called!");
+    server.send(200, "text/plain", id);
+  }
+
+  Serial.println("Scan Stopped");
 }
 
 void handleLoginScanTag()
 {
   Serial.println("Login Scan Tag Called!");
+  unsigned long startTime = millis();
   String id = rfid.scan_tag();
+
   while (id == "")
   {
     if (digitalRead(pin_manager.center_button) == LOW)
@@ -297,16 +311,20 @@ void handleLoginScanTag()
       server.send(400, "text/plain", "Scan stopped in between.");
       break;
     }
+    if (millis() - startTime >= 10000)
+    {
+      server.send(400, "text/plain", "Timeout error: No scan within 10 seconds.");
+      break;
+    }
     id = rfid.scan_tag();
   }
-  String correct = "230B4EFB";
-  if (id == correct)
+  if (id == "230B4EFB")
   {
     isAuthenticated = true;
     server.sendHeader("Location", "/configuration", true);
     server.send(302, "text/plain", "Redirecting to /configuration");
   }
-  else
+  else if (id != "")
   {
     server.send(401, "text/plain", "Invalid Card!");
   }
