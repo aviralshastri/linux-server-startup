@@ -1249,6 +1249,7 @@ const char *PAGES::main = R"rawliteral(
 
           if (response.ok) {
             showToast("Operation completed successfully");
+            editRowUpdateData(selectedtag.id,name,role);
             closeModal();
           } else {
             showToast("Operation failed");
@@ -1258,6 +1259,29 @@ const char *PAGES::main = R"rawliteral(
           console.error("Error:", error);
           showToast("An error occurred");
           alert("An error occurred");
+        }
+      }
+
+      function editRowUpdateData(id, newName, newRole) {
+        function updateRow(row, newName, newRole) {
+          if (newName !== "") row.cells[1].textContent = newName;
+          if (newRole !== "") row.cells[2].textContent = newRole;
+        }
+
+        const row = document.getElementById(id);
+        const rowMobile = document.getElementById(id);
+
+        if (!row && !rowMobile) {
+          console.error(`Row with id ${id} not found`);
+          return;
+        }
+
+        if (row) updateRow(row, newName, newRole);
+        if (rowMobile) updateRow(rowMobile, newName, newRole);
+
+        if (selectedRow && selectedRow.id === id) {
+          if (newName !== "") selectedtag.name = newName;
+          if (newRole !== "") selectedtag.role = newRole;
         }
       }
 
@@ -1518,6 +1542,7 @@ const char *PAGES::main = R"rawliteral(
           tableBody.appendChild(createRow(id, tag));
         });
       }
+
       initializeTable();
 
       const desktopTabs = document.querySelectorAll(".desktop-layout .tab");

@@ -19,7 +19,7 @@ WebServer server(80);
 bool isAuthenticated = false;
 IPAddress connectedClientIP;
 unsigned long lastActivityTime = 0;
-const unsigned long TIMEOUT_DURATION = 30000; // 30 seconds timeout
+const unsigned long TIMEOUT_DURATION = 60000;
 
 void checkAndHandleTimeout()
 {
@@ -39,16 +39,16 @@ bool isClientAllowed()
 {
   if (!isAuthenticated)
   {
-    return true; // Allow new connections when no one is authenticated
+    return true;
   }
 
   if (server.client().remoteIP() == connectedClientIP)
   {
     updateLastActivityTime();
-    return true; // Allow the currently authenticated client
+    return true;
   }
 
-  return false; // Deny other clients when someone is already authenticated
+  return false;
 }
 
 void handleRoot()
