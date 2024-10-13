@@ -17,15 +17,60 @@ String loginPassword = "admin";
 WebServer server(80);
 
 bool isAuthenticated = false;
+IPAddress connectedClientIP;
+unsigned long lastActivityTime = 0;
+const unsigned long TIMEOUT_DURATION = 30000; // 30 seconds timeout
+
+void checkAndHandleTimeout()
+{
+  if (isAuthenticated && (millis() - lastActivityTime > TIMEOUT_DURATION))
+  {
+    Serial.println("Session timed out. Logging out.");
+    handleLogout();
+  }
+}
+
+void updateLastActivityTime()
+{
+  lastActivityTime = millis();
+}
+
+bool isClientAllowed()
+{
+  if (!isAuthenticated)
+  {
+    return true; // Allow new connections when no one is authenticated
+  }
+
+  if (server.client().remoteIP() == connectedClientIP)
+  {
+    updateLastActivityTime();
+    return true; // Allow the currently authenticated client
+  }
+
+  return false; // Deny other clients when someone is already authenticated
+}
 
 void handleRoot()
 {
+  if (!isClientAllowed())
+  {
+    server.send(403, "text/plain", "Another device is already connected. Please try again later.");
+    return;
+  }
+
   String html = PAGES::login;
   server.send(200, "text/html", html);
 }
 
 void handleLogin()
 {
+  if (!isClientAllowed())
+  {
+    server.send(403, "text/plain", "Another device is already connected. Please try again later.");
+    return;
+  }
+
   if (server.hasArg("userid") && server.hasArg("password"))
   {
     String userid = server.arg("userid");
@@ -33,15 +78,13 @@ void handleLogin()
     if (userid == loginId && userpassword == loginPassword)
     {
       isAuthenticated = true;
+      connectedClientIP = server.client().remoteIP();
+      updateLastActivityTime();
       server.sendHeader("Location", "/configuration");
       server.send(302, "text/plain", "Redirecting to configuration...");
     }
     else
     {
-      Serial.println(userid);
-      Serial.println(userpassword);
-      Serial.println(loginPassword);
-      Serial.println(loginId);
       isAuthenticated = false;
       server.send(401, "text/plain", "Authentication Failed!");
       handleRoot();
@@ -53,13 +96,44 @@ void handleLogin()
   }
 }
 
+void handleConfiguration()
+{
+  if (!isClientAllowed())
+  {
+    server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    return;
+  }
+
+  checkAndHandleTimeout();
+
+  if (isAuthenticated)
+  {
+    String html = PAGES::main;
+    server.send(200, "text/html", html);
+  }
+  else
+  {
+    server.sendHeader("Location", "/");
+    server.send(302, "text/plain", "Redirecting to login...");
+  }
+}
+
 void getAllTags()
 {
+  if (!isClientAllowed())
+  {
+    server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    return;
+  }
+
+  checkAndHandleTimeout();
+
   if (!isAuthenticated)
   {
     server.send(401, "text/plain", "Unauthorized");
     return;
   }
+
   Serial.println("Fetching all tags...");
   String tags = generals.list_all_tags();
   String jsonResponse = "[";
@@ -74,10 +148,8 @@ void getAllTags()
     {
       String id = tagEntry.substring(0, colonIndex);
       String tagInfo = tagEntry.substring(colonIndex + 2);
-
       jsonResponse += "{\"id\": \"" + id + "\", \"info\": " + tagInfo + "},";
     }
-
     startIndex = endIndex + 1;
   }
 
@@ -90,26 +162,22 @@ void getAllTags()
   Serial.println(jsonResponse);
 }
 
-void handleConfiguration()
-{
-  if (isAuthenticated)
-  {
-    String html = PAGES::main;
-    server.send(200, "text/html", html);
-  }
-  else
-  {
-    server.sendHeader("Location", "/");
-    server.send(302, "text/plain", "Redirecting to login...");
-  }
-}
-
 void handleAdd()
 {
-  if (!isAuthenticated)
+  if (!isClientAllowed())
   {
+    server.send(403, "text/plain", "Unauthorized or another device is connected.");
     return;
   }
+
+  checkAndHandleTimeout();
+
+  if (!isAuthenticated)
+  {
+    server.send(401, "text/plain", "Unauthorized");
+    return;
+  }
+
   Serial.println("Add called!");
   if (server.hasArg("id") && server.hasArg("name") && server.hasArg("role"))
   {
@@ -127,8 +195,8 @@ void handleAdd()
     else
     {
       generals.add_tag(tag_id, name, role);
+      server.send(200, "text/plain", "Tag added successfully");
     }
-    server.send(200, "text/plain", "Tag added successfully");
   }
   else
   {
@@ -138,10 +206,20 @@ void handleAdd()
 
 void handleDelete()
 {
-  if (!isAuthenticated)
+  if (!isClientAllowed())
   {
+    server.send(403, "text/plain", "Unauthorized or another device is connected.");
     return;
   }
+
+  checkAndHandleTimeout();
+
+  if (!isAuthenticated)
+  {
+    server.send(401, "text/plain", "Unauthorized");
+    return;
+  }
+
   Serial.println("Delete called!");
   if (server.hasArg("id"))
   {
@@ -165,10 +243,20 @@ void handleDelete()
 
 void handleEdit()
 {
-  if (!isAuthenticated)
+  if (!isClientAllowed())
   {
+    server.send(403, "text/plain", "Unauthorized or another device is connected.");
     return;
   }
+
+  checkAndHandleTimeout();
+
+  if (!isAuthenticated)
+  {
+    server.send(401, "text/plain", "Unauthorized");
+    return;
+  }
+
   Serial.println("Edit called!");
   if (server.hasArg("id") && (server.hasArg("name") || server.hasArg("role")))
   {
@@ -188,7 +276,6 @@ void handleEdit()
       Serial.print("New Name: ");
       Serial.println(name);
       generals.update_tag_name(tag_id, name);
-      server.send(200, "text/plain", "Tag edited successfully");
     }
     if (server.hasArg("role"))
     {
@@ -196,8 +283,8 @@ void handleEdit()
       Serial.print("New Role: ");
       Serial.println(role);
       generals.update_tag_role(tag_id, role);
-      server.send(200, "text/plain", "Tag edited successfully");
     }
+    server.send(200, "text/plain", "Tag edited successfully");
   }
   else
   {
@@ -208,10 +295,20 @@ void handleEdit()
 
 void handleSaveUserConfig()
 {
-  if (!isAuthenticated)
+  if (!isClientAllowed())
   {
+    server.send(403, "text/plain", "Unauthorized or another device is connected.");
     return;
   }
+
+  checkAndHandleTimeout();
+
+  if (!isAuthenticated)
+  {
+    server.send(401, "text/plain", "Unauthorized");
+    return;
+  }
+
   Serial.println("User config called!");
   if (server.hasArg("userid") && server.hasArg("userpassword"))
   {
@@ -219,6 +316,7 @@ void handleSaveUserConfig()
     String userpassword = server.arg("userpassword");
     Serial.println(userid);
     Serial.println(userpassword);
+    // TODO: Implement saving user config
     server.send(200, "text/plain", "User config saved successfully");
   }
   else
@@ -229,10 +327,20 @@ void handleSaveUserConfig()
 
 void handleSaveWifiConfig()
 {
-  if (!isAuthenticated)
+  if (!isClientAllowed())
   {
+    server.send(403, "text/plain", "Unauthorized or another device is connected.");
     return;
   }
+
+  checkAndHandleTimeout();
+
+  if (!isAuthenticated)
+  {
+    server.send(401, "text/plain", "Unauthorized");
+    return;
+  }
+
   Serial.println("Wifi config called!");
   if (server.hasArg("wifissid") && server.hasArg("wifipassword"))
   {
@@ -240,6 +348,7 @@ void handleSaveWifiConfig()
     String wifipassword = server.arg("wifipassword");
     Serial.println(wifissid);
     Serial.println(wifipassword);
+    // TODO: Implement saving WiFi config
     server.send(200, "text/plain", "WiFi config saved successfully");
   }
   else
@@ -250,10 +359,20 @@ void handleSaveWifiConfig()
 
 void handleSaveAPConfig()
 {
-  if (!isAuthenticated)
+  if (!isClientAllowed())
   {
+    server.send(403, "text/plain", "Unauthorized or another device is connected.");
     return;
   }
+
+  checkAndHandleTimeout();
+
+  if (!isAuthenticated)
+  {
+    server.send(401, "text/plain", "Unauthorized");
+    return;
+  }
+
   Serial.println("AP config called!");
   if (server.hasArg("apid") && server.hasArg("appassword"))
   {
@@ -261,6 +380,7 @@ void handleSaveAPConfig()
     String appassword = server.arg("appassword");
     Serial.println(apid);
     Serial.println(appassword);
+    // TODO: Implement saving AP config
     server.send(200, "text/plain", "AP config saved successfully");
   }
   else
@@ -271,6 +391,20 @@ void handleSaveAPConfig()
 
 void handleAddScanTag()
 {
+  if (!isClientAllowed())
+  {
+    server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    return;
+  }
+
+  checkAndHandleTimeout();
+
+  if (!isAuthenticated)
+  {
+    server.send(401, "text/plain", "Unauthorized");
+    return;
+  }
+
   unsigned long startTime = millis();
   String id = rfid.scan_tag();
   while (id == "")
@@ -285,7 +419,6 @@ void handleAddScanTag()
       server.send(400, "text/plain", "Timeout error: No scan within 10 seconds.");
       break;
     }
-
     id = rfid.scan_tag();
   }
   if (id != "")
@@ -294,12 +427,17 @@ void handleAddScanTag()
     Serial.println("Add Scan Tag Called!");
     server.send(200, "text/plain", id);
   }
-
   Serial.println("Scan Stopped");
 }
 
 void handleLoginScanTag()
 {
+  if (!isClientAllowed())
+  {
+    server.send(403, "text/plain", "Another device is already connected. Please try again later.");
+    return;
+  }
+
   Serial.println("Login Scan Tag Called!");
   unsigned long startTime = millis();
   String id = rfid.scan_tag();
@@ -321,6 +459,8 @@ void handleLoginScanTag()
   if (id == "230B4EFB")
   {
     isAuthenticated = true;
+    connectedClientIP = server.client().remoteIP();
+    updateLastActivityTime();
     server.sendHeader("Location", "/configuration", true);
     server.send(302, "text/plain", "Redirecting to /configuration");
   }
@@ -334,13 +474,13 @@ void handleLoginScanTag()
 void handleLogout()
 {
   isAuthenticated = false;
+  connectedClientIP = IPAddress(0, 0, 0, 0);
   server.sendHeader("Location", "/");
   server.send(302, "text/plain", "Redirecting to login...");
 }
 
 void setup()
 {
-
   delay(4000);
   Serial.begin(115200);
 
@@ -369,6 +509,7 @@ void setup()
   server.on("/edit", HTTP_POST, handleEdit);
   server.on("/addScanTag", HTTP_GET, handleAddScanTag);
   server.on("/loginScanTag", handleLoginScanTag);
+
   server.begin();
   Serial.println("Server started");
 }
@@ -376,4 +517,5 @@ void setup()
 void loop()
 {
   server.handleClient();
+  checkAndHandleTimeout();
 }
