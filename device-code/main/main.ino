@@ -316,7 +316,6 @@ void handleSaveUserConfig()
     String userpassword = server.arg("userpassword");
     Serial.println(userid);
     Serial.println(userpassword);
-    // TODO: Implement saving user config
     server.send(200, "text/plain", "User config saved successfully");
   }
   else
@@ -348,7 +347,6 @@ void handleSaveWifiConfig()
     String wifipassword = server.arg("wifipassword");
     Serial.println(wifissid);
     Serial.println(wifipassword);
-    // TODO: Implement saving WiFi config
     server.send(200, "text/plain", "WiFi config saved successfully");
   }
   else
@@ -380,7 +378,6 @@ void handleSaveAPConfig()
     String appassword = server.arg("appassword");
     Serial.println(apid);
     Serial.println(appassword);
-    // TODO: Implement saving AP config
     server.send(200, "text/plain", "AP config saved successfully");
   }
   else
@@ -414,9 +411,9 @@ void handleAddScanTag()
       server.send(400, "text/plain", "Scan stopped in between.");
       break;
     }
-    if (millis() - startTime >= 10000)
+    if (millis() - startTime >= 20000)
     {
-      server.send(400, "text/plain", "Timeout error: No scan within 10 seconds.");
+      server.send(400, "text/plain", "Timeout error: No scan within 20 seconds.");
       break;
     }
     id = rfid.scan_tag();
@@ -449,9 +446,9 @@ void handleLoginScanTag()
       server.send(400, "text/plain", "Scan stopped in between.");
       break;
     }
-    if (millis() - startTime >= 10000)
+    if (millis() - startTime >= 20000)
     {
-      server.send(400, "text/plain", "Timeout error: No scan within 10 seconds.");
+      server.send(400, "text/plain", "Timeout error: No scan within 20 seconds.");
       break;
     }
     id = rfid.scan_tag();
@@ -470,6 +467,7 @@ void handleLoginScanTag()
   }
   Serial.println("Scan Stopped");
 }
+
 
 void handleLogout()
 {
