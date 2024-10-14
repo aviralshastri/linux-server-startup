@@ -1249,7 +1249,7 @@ const char *PAGES::main = R"rawliteral(
 
           if (response.ok) {
             showToast("Operation completed successfully");
-            editRowUpdateData(selectedtag.id,name,role);
+            editRowUpdateData(selectedtag.id, name, role);
             closeModal();
           } else {
             showToast("Operation failed");
@@ -1543,7 +1543,56 @@ const char *PAGES::main = R"rawliteral(
         });
       }
 
-      initializeTable();
+      async function getConfig() {
+        let userIdMobile = document.getElementById("mobile-user-id");
+        let userId = document.getElementById("user-id");
+        let userPasswordMobile = document.getElementById(
+          "mobile-user-password"
+        );
+        let userPassword = document.getElementById("user-password");
+        let ApIdMobile = document.getElementById("mobile-ap-ssid");
+        let ApId = document.getElementById("ap-ssid");
+        let ApPasswordMobile = document.getElementById("mobile-ap-password");
+        let ApPassword = document.getElementById("ap-password");
+        let WIdMobile = document.getElementById("mobile-wifi-ssid");
+        let WId = document.getElementById("wifi-ssid");
+        let WPasswordMobile = document.getElementById("mobile-wifi-password");
+        let WPassword = document.getElementById("wifi-password");
+
+        try {
+          const response = await fetch("/getConfig", {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log("Configuration data:", data);
+          WIdMobile.value = data.WI;
+          WId.value = data.WI;
+          WPasswordMobile.value = data.WP;
+          WPassword.value = data.WP;
+          userIdMobile.value = data.UI;
+          userId.value = data.UI;
+          userPasswordMobile.value = data.UP;
+          userPassword.value = data.UP;
+          ApIdMobile.value = data.APP;
+          ApId.value = data.APP;
+          ApPasswordMobile.value = data.API;
+          ApPassword.value = data.API;
+        } catch (error) {
+          console.error(
+            "There was a problem fetching the configuration:",
+            error
+          );
+          showToast("Error fetching configuration!");
+        }
+      }
 
       const desktopTabs = document.querySelectorAll(".desktop-layout .tab");
       const desktopContents = document.querySelectorAll(
@@ -1738,6 +1787,8 @@ const char *PAGES::main = R"rawliteral(
         });
       }
 
+      initializeTable();
+      getConfig();
       setupTabs(desktopTabs, desktopContents);
       setupTabs(mobileTabs, mobileContents);
     </script>

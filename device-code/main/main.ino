@@ -468,6 +468,27 @@ void handleLoginScanTag()
   Serial.println("Scan Stopped");
 }
 
+void getConfig()
+{
+  if (!isAuthenticated)
+  {
+    server.send(401, "text/plain", "Unauthorized");
+    return;
+  }
+
+  String WP = "fdfdsaas", WI = "fdfdsas", UI = "fda432s", UP = "fdasfds", APP = "fdas432", API = "fdafdsas";
+
+  String jsonResponse = String("{") +
+                        "\"WI\": \"" + WI + "\"," +
+                        "\"WP\": \"" + WP + "\"," +
+                        "\"UI\": \"" + UI + "\"," +
+                        "\"UP\": \"" + UP + "\"," +
+                        "\"APP\": \"" + APP + "\"," +
+                        "\"API\": \"" + API + "\"" +
+                        "}";
+
+  server.send(200, "application/json", jsonResponse);
+}
 
 void handleLogout()
 {
@@ -498,10 +519,11 @@ void setup()
   server.on("/configuration", handleConfiguration);
   server.on("/login", HTTP_POST, handleLogin);
   server.on("/logout", handleLogout);
+  server.on("/getAllTags", HTTP_GET, getAllTags);
+  server.on("/getConfig", HTTP_GET, getConfig);
   server.on("/saveUserConfig", HTTP_POST, handleSaveUserConfig);
   server.on("/saveAPConfig", HTTP_POST, handleSaveAPConfig);
   server.on("/saveWifiConfig", HTTP_POST, handleSaveWifiConfig);
-  server.on("/getAllTags", HTTP_GET, getAllTags);
   server.on("/add", HTTP_POST, handleAdd);
   server.on("/delete", HTTP_POST, handleDelete);
   server.on("/edit", HTTP_POST, handleEdit);
