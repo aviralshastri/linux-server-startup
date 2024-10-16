@@ -9,6 +9,40 @@ String GENERALS::getUniqueId() {
   return uniqueId;
 }
 
+bool GENERALS::isValidSettingsKey(const String& key) {
+  static const char* validKeys[] = {"SP", "WI", "WP", "UI", "UP", "APP", "API", "OEK", "CEK"};
+  for (const char* validKey : validKeys) {
+    if (key == validKey) {
+      return true;
+    }
+  }
+  return false;
+}
+
+String GENERALS::readSettingsKey(const String& key) {
+  if (!isValidSettingsKey(key)) {
+    return "Invalid key";
+  }
+
+  preferences.begin("settings-keys", true);
+  String value = preferences.getString(key.c_str(), "");
+  preferences.end();
+
+  return value;
+}
+
+bool GENERALS::writeSettingsKey(const String& key, const String& value) {
+  if (!isValidSettingsKey(key)) {
+    return false;
+  }
+
+  preferences.begin("settings-keys", false);
+  bool success = preferences.putString(key.c_str(), value);
+  preferences.end();
+
+  return success;
+}
+
 bool GENERALS::connectToWiFi(const char* ssid, const char* password) {
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi...");
@@ -48,7 +82,6 @@ bool GENERALS::initialize_device() {
   preferences.putString("APP", "admin");
   preferences.putString("OEK", "");
   preferences.putString("CEK", "");
-  preferences.putString("OEK", "");
   preferences.putString("TA", "[]");
   preferences.end();
 
@@ -57,24 +90,6 @@ bool GENERALS::initialize_device() {
   preferences.end();
 
   return true;
-}
-
-void GENERALS::write_settings_keys(const String& key, const String& value) {
-  preferences.begin("settings-keys", false);
-  if (key == "SP" || key == "CEK" || key == "OEK" || key == "TT" || key == "WP" || key == "WI" || key == "UI" || key == "UP" || key == "API" || key == "APP") {
-    preferences.putString(key.c_str(), value);
-    Serial.println("Data written: " + key + " = " + value);
-  } else {
-    Serial.println("Invalid key: " + key);
-  }
-  preferences.end();
-}
-
-String GENERALS::read_settings_keys(const String& key) {
-  preferences.begin("settings-keys", false);
-  String value = preferences.getString(key.c_str(), "none");
-  preferences.end();
-  return value;
 }
 
 bool isValidRole(const String& role) {

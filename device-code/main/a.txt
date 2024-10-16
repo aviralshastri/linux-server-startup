@@ -9,7 +9,7 @@
 RFID rfid;
 PIN_MANAGER pin_manager;
 GENERALS generals;
-I2C_LCD lcd(0x27, 16, 2);
+
 
 String ssid = "ESP32-SERVER-CONTROLLER";
 String password = generals.getUniqueId();
@@ -49,17 +49,26 @@ bool isClientAllowed() {
 
 void handleRoot() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Another device is already connected. Please try again later.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   String html = PAGES::login;
+  digitalWrite(pin_manager.process_led_green, HIGH);
   server.send(200, "text/html", html);
+  delay(1000);
+  digitalWrite(pin_manager.process_led_green, LOW);
 }
 
 void handleLogin() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Another device is already connected. Please try again later.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
@@ -74,17 +83,26 @@ void handleLogin() {
       server.send(302, "text/plain", "Redirecting to configuration...");
     } else {
       isAuthenticated = false;
+      digitalWrite(pin_manager.process_led_red, HIGH);
       server.send(401, "text/plain", "Authentication Failed!");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_red, LOW);
       handleRoot();
     }
   } else {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(400, "text/plain", "Invalid Request");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
   }
 }
 
 void handleConfiguration() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
@@ -92,7 +110,12 @@ void handleConfiguration() {
 
   if (isAuthenticated) {
     String html = PAGES::main;
+
+    digitalWrite(pin_manager.process_led_green, HIGH);
     server.send(200, "text/html", html);
+    delay(1000);
+    digitalWrite(pin_manager.process_led_green, LOW);
+
   } else {
     server.sendHeader("Location", "/");
     server.send(302, "text/plain", "Redirecting to login...");
@@ -101,14 +124,20 @@ void handleConfiguration() {
 
 void getAllTags() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   checkAndHandleTimeout();
 
   if (!isAuthenticated) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Unauthorized");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
@@ -133,20 +162,29 @@ void getAllTags() {
     jsonResponse = jsonResponse.substring(0, jsonResponse.length() - 1);
   }
   jsonResponse += "]";
+  digitalWrite(pin_manager.process_led_green, HIGH);
   server.send(200, "application/json", jsonResponse);
+  delay(1000);
+  digitalWrite(pin_manager.process_led_green, LOW);
   Serial.println(jsonResponse);
 }
 
 void handleAdd() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   checkAndHandleTimeout();
 
   if (!isAuthenticated) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Unauthorized");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
@@ -160,26 +198,43 @@ void handleAdd() {
     Serial.println(role);
     if (generals.tag_exists(tag_id)) {
       Serial.println("exist");
+      digitalWrite(pin_manager.process_led_red, HIGH);
       server.send(400, "text/plain", "Already exist!");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_red, LOW);
+
     } else {
       generals.add_tag(tag_id, name, role);
+
+      digitalWrite(pin_manager.process_led_green, HIGH);
       server.send(200, "text/plain", "Tag added successfully");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_green, LOW);
     }
   } else {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(400, "text/plain", "Invalid Request");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
   }
 }
 
 void handleDelete() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   checkAndHandleTimeout();
 
   if (!isAuthenticated) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Unauthorized");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
@@ -188,26 +243,41 @@ void handleDelete() {
     String tag_id = server.arg("id");
     if (generals.tag_exists(tag_id)) {
       generals.remove_tag(tag_id);
+      digitalWrite(pin_manager.process_led_green, HIGH);
       server.send(200, "text/plain", "Tag deleted successfully");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_green, LOW);
     } else {
       Serial.println("does not exist");
+      digitalWrite(pin_manager.process_led_red, HIGH);
       server.send(400, "text/plain", "Tag does not exist!");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_red, LOW);
     }
   } else {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(400, "text/plain", "Invalid Request");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
   }
 }
 
 void handleEdit() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   checkAndHandleTimeout();
 
   if (!isAuthenticated) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Unauthorized");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
@@ -219,7 +289,10 @@ void handleEdit() {
 
     if (!generals.tag_exists(tag_id)) {
       Serial.println("Tag does not exist");
+      digitalWrite(pin_manager.process_led_red, HIGH);
       server.send(404, "text/plain", "Tag not found!");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_red, LOW);
       return;
     }
     if (server.hasArg("name")) {
@@ -234,23 +307,36 @@ void handleEdit() {
       Serial.println(role);
       generals.update_tag_role(tag_id, role);
     }
+
+    digitalWrite(pin_manager.process_led_green, HIGH);
     server.send(200, "text/plain", "Tag edited successfully");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_green, LOW);
   } else {
     Serial.println("Invalid Request: Missing required fields");
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(400, "text/plain", "Invalid Request");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
   }
 }
 
 void handleSaveUserConfig() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   checkAndHandleTimeout();
 
   if (!isAuthenticated) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Unauthorized");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
@@ -260,22 +346,34 @@ void handleSaveUserConfig() {
     String userpassword = server.arg("userpassword");
     Serial.println(userid);
     Serial.println(userpassword);
+    digitalWrite(pin_manager.process_led_green, HIGH);
     server.send(200, "text/plain", "User config saved successfully");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_green, LOW);
   } else {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(400, "text/plain", "Invalid Request");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
   }
 }
 
 void handleSaveWifiConfig() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   checkAndHandleTimeout();
 
   if (!isAuthenticated) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Unauthorized");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
@@ -285,22 +383,34 @@ void handleSaveWifiConfig() {
     String wifipassword = server.arg("wifipassword");
     Serial.println(wifissid);
     Serial.println(wifipassword);
+    digitalWrite(pin_manager.process_led_green, HIGH);
     server.send(200, "text/plain", "WiFi config saved successfully");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_green, LOW);
   } else {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(400, "text/plain", "Invalid Request");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
   }
 }
 
 void handleSaveAPConfig() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   checkAndHandleTimeout();
 
   if (!isAuthenticated) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Unauthorized");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
@@ -310,67 +420,100 @@ void handleSaveAPConfig() {
     String appassword = server.arg("appassword");
     Serial.println(apid);
     Serial.println(appassword);
+    digitalWrite(pin_manager.process_led_green, HIGH);
     server.send(200, "text/plain", "AP config saved successfully");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_green, LOW);
   } else {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(400, "text/plain", "Invalid Request");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
   }
 }
 
 void handleAddScanTag() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Unauthorized or another device is connected.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   checkAndHandleTimeout();
 
   if (!isAuthenticated) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Unauthorized");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   unsigned long startTime = millis();
   String id = rfid.scan_tag();
+  digitalWrite(pin_manager.process_led_blue, HIGH);
   while (id == "") {
     if (digitalRead(pin_manager.center_button) == LOW) {
+      digitalWrite(pin_manager.process_led_red, HIGH);
       server.send(400, "text/plain", "Scan stopped in between.");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_red, LOW);
       break;
     }
     if (millis() - startTime >= 20000) {
+      digitalWrite(pin_manager.process_led_red, HIGH);
       server.send(400, "text/plain", "Timeout error: No scan within 20 seconds.");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_red, LOW);
       break;
     }
     id = rfid.scan_tag();
   }
+  digitalWrite(pin_manager.process_led_blue, LOW);
   if (id != "") {
     Serial.println(id);
     Serial.println("Add Scan Tag Called!");
+    digitalWrite(pin_manager.process_led_green, HIGH);
     server.send(200, "text/plain", id);
+    delay(1000);
+    digitalWrite(pin_manager.process_led_green, LOW);
   }
   Serial.println("Scan Stopped");
 }
 
 void handleLoginScanTag() {
   if (!isClientAllowed()) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(403, "text/plain", "Another device is already connected. Please try again later.");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   Serial.println("Login Scan Tag Called!");
   unsigned long startTime = millis();
   String id = rfid.scan_tag();
-
+  digitalWrite(pin_manager.process_led_blue, HIGH);
   while (id == "") {
     if (digitalRead(pin_manager.center_button) == LOW) {
+      digitalWrite(pin_manager.process_led_red, HIGH);
       server.send(400, "text/plain", "Scan stopped in between.");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_red, LOW);
       break;
     }
     if (millis() - startTime >= 20000) {
+      digitalWrite(pin_manager.process_led_red, HIGH);
       server.send(400, "text/plain", "Timeout error: No scan within 20 seconds.");
+      delay(1000);
+      digitalWrite(pin_manager.process_led_red, LOW);
       break;
     }
     id = rfid.scan_tag();
   }
+  digitalWrite(pin_manager.process_led_blue, LOW);
   if (id == "230B4EFB") {
     isAuthenticated = true;
     connectedClientIP = server.client().remoteIP();
@@ -378,22 +521,30 @@ void handleLoginScanTag() {
     server.sendHeader("Location", "/configuration", true);
     server.send(302, "text/plain", "Redirecting to /configuration");
   } else if (id != "") {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Invalid Card!");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
   }
   Serial.println("Scan Stopped");
 }
 
 void getConfig() {
   if (!isAuthenticated) {
+    digitalWrite(pin_manager.process_led_red, HIGH);
     server.send(401, "text/plain", "Unauthorized");
+    delay(1000);
+    digitalWrite(pin_manager.process_led_red, LOW);
     return;
   }
 
   String WP = "fdfdsaas", WI = "fdfdsas", UI = "fda432s", UP = "fdasfds", APP = "fdas432", API = "fdafdsas";
 
   String jsonResponse = String("{") + "\"WI\": \"" + WI + "\"," + "\"WP\": \"" + WP + "\"," + "\"UI\": \"" + UI + "\"," + "\"UP\": \"" + UP + "\"," + "\"APP\": \"" + APP + "\"," + "\"API\": \"" + API + "\"" + "}";
-
+  digitalWrite(pin_manager.process_led_green, HIGH);
   server.send(200, "application/json", jsonResponse);
+  delay(1000);
+  digitalWrite(pin_manager.process_led_green, LOW);
 }
 
 void handleLogout() {
@@ -406,20 +557,10 @@ void handleLogout() {
 void setup() {
   delay(4000);
   Serial.begin(115200);
-  
-  lcd.begin();
+
   rfid.begin();
   pin_manager.initPins();
-
-  lcd.show_text("Hello, World!", 0);
-  lcd.show_text("I2C LCD Test", 1);
-  delay(2000);
-
-  lcd.clear_line(0);
-  lcd.clear_line(1);
-  lcd.show_text_center("Centered", 0);
-  lcd.show_text_center("Text", 1);
-  delay(2000);
+  digitalWrite(pin_manager.startup_led_red, HIGH);
 
   Serial.println(ssid.c_str());
   Serial.println(password.c_str());
@@ -447,6 +588,10 @@ void setup() {
 
   server.begin();
   Serial.println("Server started");
+  delay(1000);
+  digitalWrite(pin_manager.startup_led_red, LOW);
+  delay(500);
+  digitalWrite(pin_manager.startup_led_blue, HIGH);
 }
 
 void loop() {
